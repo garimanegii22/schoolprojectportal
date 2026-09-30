@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School House Championship Portal (Cloud Synced)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: { colors: { darkbg: '#07090e', cardbg: '#111827' } }
+            }
+        }
+    </script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #07090e; color: #f3f4f6; }
+        .glass { background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glow-red { box-shadow: 0 0 25px rgba(239, 68, 68, 0.15); }
+        .glow-blue { box-shadow: 0 0 25px rgba(59, 130, 246, 0.15); }
+        .glow-green { box-shadow: 0 0 25px rgba(16, 185, 129, 0.15); }
+        .glow-yellow { box-shadow: 0 0 25px rgba(245, 158, 11, 0.15); }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 flex flex-col justify-between">
+
+    <div class="max-w-7xl mx-auto w-full space-y-8">
+        
+        <!-- Header -->
+        <header class="glass p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-white/10 shadow-2xl">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 text-2xl">
+                    🏆
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-indigo-400">
+                        House Championship Cloud Portal
+                    </h1>
+                    <p class="text-gray-400 text-xs md:text-sm mt-0.5">Live Multi-Teacher Cloud Sync & Real-time Analytics</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <div id="syncStatus" class="px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Cloud Synced
+                </div>
+                <button onclick="exportCSV()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 shadow-lg shadow-indigo-600/25">
+                    <i class="fa-solid fa-file-csv"></i> Export CSV
+                </button>
+            </div>
+        </header>
+
+        <!-- Live Leaderboard Cards -->
+        <section>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-ranking-star text-indigo-400"></i> Live House Standings
+                </h2>
+                <span class="text-xs text-gray-400 bg-white/5 px-3 py-1 rounded-full border border-white/5">Synced across all school devices</span>
+            </div>
+            <div id="leaderboardGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Loaded from Firestore -->
+            </div>
+        </section>
+
+        <!-- Main Workspace Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left 2 Cols: Forms -->
+            <div class="lg:col-span-2 space-y-8">
+                
+                <!-- Tab Controls -->
+                <div class="flex gap-2 p-1.5 glass rounded-2xl border border-white/10">
+                    <button onclick="switchTab('results')" id="tabBtn-results" class="flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition bg-indigo-600 text-white shadow-md">
+                        <i class="fa-solid fa-trophy mr-2"></i> Enter Event Result
+                    </button>
+                    <button onclick="switchTab('competition')" id="tabBtn-competition" class="flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition text-gray-400 hover:text-white">
+                        <i class="fa-solid fa-calendar-plus mr-2"></i> Add Competition
+                    </button>
+                    <button onclick="switchTab('student')" id="tabBtn-student" class="flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition text-gray-400 hover:text-white">
+                        <i class="fa-solid fa-user-plus mr-2"></i> Register Student
+                    </button>
+                </div>
+
+                <!-- Form 1: Enter Results -->
+                <div id="tabContent-results" class="glass p-6 rounded-3xl space-y-5 border border-white/10">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-award text-amber-400"></i> Record Competition Podium Result
+                    </h3>
+                    <form onsubmit="handleResultSubmit(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Select Competition</label>
+                            <select id="resCompName" required class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Position / Rank</label>
+                            <select id="resPosition" required class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                                <option value="1st">1st Place (Winner)</option>
+                                <option value="2nd">2nd Place</option>
+                                <option value="3rd">3rd Place</option>
+                                <option value="4th">4th Place</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Winning House</label>
+                            <select id="resHouse" required class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                                <option value="Blue">🔵 Blue House</option>
+                                <option value="Red">🔴 Red House</option>
+                                <option value="Green">🟢 Green House</option>
+                                <option value="Yellow">🟡 Yellow House</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Points Awarded</label>
+                            <input type="number" id="resPoints" placeholder="e.g. 10" required class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <button type="submit" class="md:col-span-2 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold text-sm transition shadow-lg shadow-indigo-600/30">
+                            Save & Sync to Cloud Database
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Form 2: Add Competition -->
+                <div id="tabContent-competition" class="glass p-6 rounded-3xl space-y-5 border border-white/10 hidden">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-flag-checkered text-indigo-400"></i> Create New Competition Event
+                    </h3>
+                    <form onsubmit="handleCompSubmit(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Competition Name</label>
+                            <input type="text" id="compName" placeholder="e.g. Inter-House Football" required class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Category</label>
+                            <select id="compCategory" class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                                <option value="Sports">Sports</option>
+                                <option value="Academics">Academics</option>
+                                <option value="Arts">Arts</option>
+                                <option value="Quiz">Quiz</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Date</label>
+                            <input type="date" id="compDate" required class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Max Points Available</label>
+                            <input type="number" id="compMaxPoints" placeholder="e.g. 15" required class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <button type="submit" class="md:col-span-2 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold text-sm transition shadow-lg shadow-indigo-600/30">
+                            Add Competition to Cloud
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Form 3: Register Student -->
+                <div id="tabContent-student" class="glass p-6 rounded-3xl space-y-5 border border-white/10 hidden">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-user-graduate text-emerald-400"></i> Register Student Participant
+                    </h3>
+                    <form onsubmit="handleStudentSubmit(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Student Full Name</label>
+                            <input type="text" id="studName" placeholder="e.g. Liam Smith" required class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Roll Number</label>
+                            <input type="text" id="studRoll" placeholder="e.g. 1042" required class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Class / Grade</label>
+                            <input type="text" id="studClass" placeholder="e.g. 10-B" required class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">House</label>
+                            <select id="studHouse" required class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                                <option value="Blue">🔵 Blue House</option>
+                                <option value="Red">🔴 Red House</option>
+                                <option value="Green">🟢 Green House</option>
+                                <option value="Yellow">🟡 Yellow House</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Competition Assigned</label>
+                            <select id="studCompetition" required class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500"></select>
+                        </div>
+                        <button type="submit" class="md:col-span-2 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-semibold text-sm transition shadow-lg shadow-emerald-600/30">
+                            Register Participant in Cloud
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+            <!-- Right Col: Search & Chart -->
+            <div class="space-y-8">
+                <div class="glass p-6 rounded-3xl space-y-4 border border-white/10">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass text-blue-400"></i> Universal Search
+                    </h3>
+                    <input type="text" id="searchInput" oninput="performSearch()" placeholder="Search student, house, or event..." class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    <div id="searchResults" class="max-h-56 overflow-y-auto space-y-2 text-xs text-gray-300 pr-1">
+                        <p class="text-gray-500 italic text-center py-4">Type above to filter records...</p>
+                    </div>
+                </div>
+
+                <div class="glass p-6 rounded-3xl border border-white/10">
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-purple-400"></i> Share of Points
+                    </h3>
+                    <div class="relative h-56 flex items-center justify-center">
+                        <canvas id="pointsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Table -->
+        <div class="glass p-6 rounded-3xl border border-white/10 space-y-4">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left text-teal-400"></i> Live Cloud Competition Log
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-gray-300">
+                    <thead class="bg-white/5 text-gray-400 uppercase text-xs">
+                        <tr>
+                            <th class="p-3 rounded-l-xl">Competition</th>
+                            <th class="p-3">Category</th>
+                            <th class="p-3">Position</th>
+                            <th class="p-3">House</th>
+                            <th class="p-3 rounded-r-xl">Points</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody" class="divide-y divide-white/5"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Cloud Sync Script -->
+    <script>
+        // ----------------------------------------------------
+        // REPLACE WITH YOUR FREE FIREBASE CONFIG KEYS HERE
+        // ----------------------------------------------------
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY_HERE",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123:web:abc"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let appData = {
+            houses: {
+                Blue: { name: "Blue", emoji: "🔵", color: "text-blue-400", border: "border-blue-500/30", glow: "glow-blue", points: 87, wins: 4 },
+                Red: { name: "Red", emoji: "🔴", color: "text-red-400", border: "border-red-500/30", glow: "glow-red", points: 79, wins: 3 },
+                Green: { name: "Green", emoji: "🟢", color: "text-emerald-400", border: "border-emerald-500/30", glow: "glow-green", points: 65, wins: 2 },
+                Yellow: { name: "Yellow", emoji: "🟡", color: "text-amber-400", border: "border-amber-500/30", glow: "glow-yellow", points: 58, wins: 2 }
+            },
+            competitions: [],
+            results: [],
+            students: []
+        };
+
+        let chartInstance = null;
+
+        // REAL-TIME LISTENER: Listens to Firestore database changes live
+        db.collection("portalData").doc("mainState").onSnapshot((doc) => {
+            if (doc.exists) {
+                appData = doc.data();
+                renderAll();
+            } else {
+                // Initialize doc if empty
+                db.collection("portalData").doc("mainState").set(appData);
+            }
+        }, (error) => {
+            console.error("Cloud sync error:", error);
+            document.getElementById('syncStatus').innerHTML = `<span class="w-2 h-2 rounded-full bg-red-400"></span> Check Firebase Config`;
+            document.getElementById('syncStatus').className = "px-3 py-1.5 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-bold flex items-center gap-2";
+        });
+
+        function saveToCloud() {
+            db.collection("portalData").doc("mainState").set(appData)
+                .then(() => console.log("Synced to cloud!"))
+                .catch((error) => alert("Sync failed: " + error.message));
+        }
+
+        function renderAll() {
+            renderLeaderboard();
+            renderDropdowns();
+            renderResultsTable();
+            renderChart();
+        }
+
+        function renderLeaderboard() {
+            const grid = document.getElementById('leaderboardGrid');
+            const sortedHouses = Object.entries(appData.houses).sort((a,b) => b[1].points - a[1].points);
+            
+            let html = '';
+            sortedHouses.forEach(([key, house], index) => {
+                html += `
+                    <div class="glass p-5 rounded-3xl border ${house.border} ${house.glow} relative overflow-hidden flex flex-col justify-between">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-white/5 text-gray-300 border border-white/10">
+                                Rank #${index + 1}
+                            </span>
+                            <span class="text-3xl font-black text-white">${house.points} <span class="text-xs font-normal text-gray-400">pts</span></span>
+                        </div>
+                        <div class="mt-6">
+                            <h3 class="text-2xl font-black ${house.color} flex items-center gap-2">
+                                <span>${house.emoji}</span> ${key}
+                            </h3>
+                            <div class="mt-3 pt-3 border-t border-white/5 flex justify-between text-xs text-gray-400 font-medium">
+                                <span>Wins Recorded:</span>
+                                <span class="text-white font-bold">${house.wins}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        function renderDropdowns() {
+            const compSelect = document.getElementById('resCompName');
+            const studCompSelect = document.getElementById('studCompetition');
+            
+            if(appData.competitions.length === 0) {
+                compSelect.innerHTML = `<option value="">Add a competition first</option>`;
+                studCompSelect.innerHTML = `<option value="">Add a competition first</option>`;
+                return;
+            }
+
+            let compOptions = '';
+            appData.competitions.forEach(c => {
+                compOptions += `<option value="${c.name}">${c.name} (${c.category})</option>`;
+            });
+            compSelect.innerHTML = compOptions;
+            studCompSelect.innerHTML = compOptions;
+        }
+
+        function renderResultsTable() {
+            const tbody = document.getElementById('resultsTableBody');
+            if(appData.results.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500 italic">No cloud results recorded yet.</td></tr>`;
+                return;
+            }
+            let html = '';
+            appData.results.slice().reverse().forEach(r => {
+                html += `
+                    <tr class="hover:bg-white/5 transition">
+                        <td class="p-3 font-semibold text-white">${r.competition}</td>
+                        <td class="p-3 text-gray-400">${r.category}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-bold">${r.position}</span></td>
+                        <td class="p-3 font-bold text-white">${r.house}</td>
+                        <td class="p-3 font-bold text-emerald-400">+${r.points} pts</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('pointsChart').getContext('2d');
+            const labels = Object.keys(appData.houses);
+            const data = labels.map(k => appData.houses[k].points);
+            const backgroundColors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b'];
+
+            if (chartInstance) {
+                chartInstance.data.datasets[0].data = data;
+                chartInstance.update();
+                return;
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{ data: data, backgroundColor: backgroundColors, borderWidth: 0 }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af', font: { size: 11 } } } }
+                }
+            });
+        }
+
+        function switchTab(tab) {
+            ['results', 'competition', 'student'].forEach(t => {
+                document.getElementById(`tabContent-${t}`).classList.add('hidden');
+                document.getElementById(`tabBtn-${t}`).className = "flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition text-gray-400 hover:text-white";
+            });
+            document.getElementById(`tabContent-${tab}`).classList.remove('hidden');
+            document.getElementById(`tabBtn-${tab}`).className = "flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition bg-indigo-600 text-white shadow-md";
+        }
+
+        function handleResultSubmit(e) {
+            e.preventDefault();
+            const competition = document.getElementById('resCompName').value;
+            const position = document.getElementById('resPosition').value;
+            const house = document.getElementById('resHouse').value;
+            const points = parseInt(document.getElementById('resPoints').value);
+
+            const compObj = appData.competitions.find(c => c.name === competition);
+            const category = compObj ? compObj.category : 'General';
+
+            appData.results.push({ competition, category, position, house, points });
+            if(appData.houses[house]) {
+                appData.houses[house].points += points;
+                if(position === '1st') appData.houses[house].wins += 1;
+            }
+
+            saveToCloud();
+            e.target.reset();
+        }
+
+        function handleCompSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('compName').value;
+            const category = document.getElementById('compCategory').value;
+            const date = document.getElementById('compDate').value;
+            const maxPoints = parseInt(document.getElementById('compMaxPoints').value);
+
+            appData.competitions.push({ name, category, date, maxPoints });
+            saveToCloud();
+            e.target.reset();
+            switchTab('results');
+        }
+
+        function handleStudentSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('studName').value;
+            const roll = document.getElementById('studRoll').value;
+            const grade = document.getElementById('studClass').value;
+            const house = document.getElementById('studHouse').value;
+            const competition = document.getElementById('studCompetition').value;
+
+            appData.students.push({ name, roll, class: grade, house, competition });
+            saveToCloud();
+            e.target.reset();
+        }
+
+        function performSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const resultsDiv = document.getElementById('searchResults');
+            if(!query) {
+                resultsDiv.innerHTML = `<p class="text-gray-500 italic text-center py-4">Type above to filter records...</p>`;
+                return;
+            }
+            let html = '';
+            appData.students.filter(s => s.name.toLowerCase().includes(query) || s.house.toLowerCase().includes(query) || s.competition.toLowerCase().includes(query))
+                .forEach(s => { html += `<div class="p-2.5 rounded-xl bg-white/5 border border-white/5">👤 <b>${s.name}</b> (${s.house} House) — Registered for <i>${s.competition}</i></div>`; });
+            appData.competitions.filter(c => c.name.toLowerCase().includes(query) || c.category.toLowerCase().includes(query))
+                .forEach(c => { html += `<div class="p-2.5 rounded-xl bg-white/5 border border-white/5">🏆 Event: <b>${c.name}</b> (${c.category}) on ${c.date}</div>`; });
+            resultsDiv.innerHTML = html || `<p class="text-gray-500 text-center py-4">No matching records found in cloud database.</p>`;
+        }
+
+        function exportCSV() {
+            let csv = "Rank,House,Points,Wins\n";
+            const sorted = Object.entries(appData.houses).sort((a,b) => b[1].points - a[1].points);
+            sorted.forEach(([house, info], idx) => {
+                csv += `${idx+1},${house},${info.points},${info.wins}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'cloud_house_standings.csv');
+            a.click();
+        }
+    </script>
+</body>
+</html>
