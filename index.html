@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School House Championship Pro</title>
+    <title>School House Championship Management System</title>
     
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -19,7 +19,7 @@
         }
     </script>
     
-    <!-- Chart.js & SweetAlert2 & FontAwesome -->
+    <!-- External Dependencies: Chart.js, SweetAlert2 & FontAwesome -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -27,124 +27,129 @@
     
     <style>
         body { background-color: #050505; color: #f3f4f6; overflow: hidden; }
-        .glass { background: rgba(17, 17, 17, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-        .nav-item.active { background: linear-gradient(90deg, rgba(79, 70, 229, 0.15) 0%, transparent 100%); border-left: 3px solid #4f46e5; color: white; }
-        .nav-item { border-left: 3px solid transparent; transition: all 0.2s; }
+        .glass { background: rgba(17, 17, 17, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.07); }
+        .nav-item.active { background: linear-gradient(90deg, rgba(79, 70, 229, 0.2) 0%, transparent 100%); border-left: 3px solid #6366f1; color: white; }
+        .nav-item { border-left: 3px solid transparent; transition: all 0.2s ease-in-out; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #050505; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-        .glow-red { box-shadow: 0 0 30px rgba(239, 68, 68, 0.1); }
-        .glow-blue { box-shadow: 0 0 30px rgba(59, 130, 246, 0.1); }
-        .glow-green { box-shadow: 0 0 30px rgba(16, 185, 129, 0.1); }
-        .glow-yellow { box-shadow: 0 0 30px rgba(245, 158, 11, 0.1); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #262626; border-radius: 10px; }
+        .search-tab.active { background-color: #4f46e5; color: white; border-color: #6366f1; }
+        .glow-red { box-shadow: 0 0 25px rgba(239, 68, 68, 0.15); }
+        .glow-blue { box-shadow: 0 0 25px rgba(59, 130, 246, 0.15); }
+        .glow-green { box-shadow: 0 0 25px rgba(16, 185, 129, 0.15); }
+        .glow-yellow { box-shadow: 0 0 25px rgba(245, 158, 11, 0.15); }
     </style>
 </head>
 <body class="flex h-screen antialiased">
 
     <!-- Sidebar Navigation -->
-    <aside class="w-20 md:w-64 glass flex flex-col h-full border-r border-white/5 z-20 shrink-0 transition-all">
-        <div class="h-20 flex items-center justify-center md:justify-start md:px-6 border-b border-white/5">
+    <aside class="w-20 md:w-64 glass flex flex-col h-full border-r border-white/10 z-20 shrink-0">
+        <div class="h-20 flex items-center justify-center md:justify-start md:px-6 border-b border-white/10">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-xl shadow-lg shadow-indigo-500/20">🏆</div>
-            <h1 class="hidden md:block ml-3 font-extrabold text-lg tracking-wide text-white">HousePro<span class="text-indigo-500">.</span></h1>
+            <div class="hidden md:block ml-3">
+                <h1 class="font-extrabold text-base tracking-wide text-white leading-none">HousePortal</h1>
+                <span class="text-[10px] text-indigo-400 font-semibold tracking-wider uppercase">CS Championship Portal</span>
+            </div>
         </div>
         
-        <nav class="flex-1 py-6 flex flex-col gap-2">
+        <nav class="flex-1 py-4 flex flex-col gap-1 overflow-y-auto custom-scrollbar">
             <button onclick="navigate('dashboard')" id="nav-dashboard" class="nav-item active flex items-center px-6 py-3.5 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
-                <i class="fa-solid fa-chart-pie w-6 text-lg"></i> <span class="hidden md:block">Live Dashboard</span>
+                <i class="fa-solid fa-chart-line w-6 text-lg"></i> <span class="hidden md:block">1. Live Leaderboard</span>
             </button>
             <button onclick="navigate('events')" id="nav-events" class="nav-item flex items-center px-6 py-3.5 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
-                <i class="fa-solid fa-calendar-day w-6 text-lg"></i> <span class="hidden md:block">Competitions</span>
+                <i class="fa-solid fa-calendar-plus w-6 text-lg"></i> <span class="hidden md:block">2. Add Competition</span>
             </button>
             <button onclick="navigate('students')" id="nav-students" class="nav-item flex items-center px-6 py-3.5 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
-                <i class="fa-solid fa-users w-6 text-lg"></i> <span class="hidden md:block">Student Directory</span>
+                <i class="fa-solid fa-user-plus w-6 text-lg"></i> <span class="hidden md:block">3. Register Student</span>
             </button>
             <button onclick="navigate('results')" id="nav-results" class="nav-item flex items-center px-6 py-3.5 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
-                <i class="fa-solid fa-medal w-6 text-lg"></i> <span class="hidden md:block">Results & Analytics</span>
+                <i class="fa-solid fa-award w-6 text-lg"></i> <span class="hidden md:block">4. Enter Results</span>
+            </button>
+            <button onclick="navigate('search')" id="nav-search" class="nav-item flex items-center px-6 py-3.5 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
+                <i class="fa-solid fa-magnifying-glass w-6 text-lg"></i> <span class="hidden md:block">5. Universal Search</span>
+            </button>
+            <button onclick="navigate('stats')" id="nav-stats" class="nav-item flex items-center px-6 py-3.5 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
+                <i class="fa-solid fa-chart-pie w-6 text-lg"></i> <span class="hidden md:block">6. Statistics Engine</span>
             </button>
         </nav>
 
-        <div class="p-6 border-t border-white/5">
+        <div class="p-4 border-t border-white/10">
             <div id="syncStatus" class="px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center justify-center md:justify-start gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> <span class="hidden md:block">Cloud Synced</span>
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> <span class="hidden md:block">Cloud Sync Active</span>
             </div>
         </div>
     </aside>
 
     <!-- Main Workspace -->
-    <main class="flex-1 h-full overflow-y-auto custom-scrollbar bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]">
-        <div class="p-4 md:p-8 max-w-7xl mx-auto">
+    <main class="flex-1 h-full overflow-y-auto custom-scrollbar bg-black">
+        <div class="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
             
-            <!-- VIEW: DASHBOARD -->
-            <section id="view-dashboard" class="view-section space-y-8 animate-fade-in">
-                <header class="flex justify-between items-end">
+            <!-- PILLAR 4: LIVE LEADERBOARD (DASHBOARD) -->
+            <section id="view-dashboard" class="view-section space-y-8">
+                <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/10 pb-4">
                     <div>
-                        <h2 class="text-3xl font-bold text-white">Championship Overview</h2>
-                        <p class="text-gray-400 text-sm mt-1">Real-time statistics across all school devices.</p>
+                        <h2 class="text-3xl font-extrabold text-white">🏆 Live House Championship Standings</h2>
+                        <p class="text-gray-400 text-sm mt-1">Real-time point updates across Red, Blue, Green, and Yellow Houses.</p>
                     </div>
-                    <button onclick="exportCSV()" class="px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg text-sm font-semibold transition border border-white/10">
-                        <i class="fa-solid fa-download mr-2"></i>Export
+                    <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-semibold transition flex items-center gap-2">
+                        <i class="fa-solid fa-print"></i> Print Official Report
                     </button>
                 </header>
 
-                <!-- Dynamic Leaderboard -->
-                <div id="leaderboardGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5"></div>
+                <!-- Dynamic Leaderboard Cards -->
+                <div id="leaderboardGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6"></div>
 
-                <!-- Stats & Charts Layer -->
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
-                    <div class="xl:col-span-2 glass p-6 rounded-2xl">
-                        <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-simple text-indigo-400"></i> House Win Distribution</h3>
-                        <div class="h-64 relative"><canvas id="barChart"></canvas></div>
-                    </div>
-                    <div class="glass p-6 rounded-2xl flex flex-col">
-                        <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-purple-400"></i> Share of Points</h3>
-                        <div class="h-56 relative flex-1"><canvas id="doughnutChart"></canvas></div>
-                    </div>
+                <!-- Live Competition Overview Feed -->
+                <div class="glass p-6 rounded-2xl border border-white/10">
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-bullhorn text-indigo-400"></i> Recent Championship Highlights</h3>
+                    <div id="dashboardRecentHighlights" class="divide-y divide-white/5"></div>
                 </div>
             </section>
 
-            <!-- VIEW: COMPETITIONS -->
+            <!-- PILLAR 1: ADD COMPETITION -->
             <section id="view-events" class="view-section space-y-8 hidden">
-                <header>
-                    <h2 class="text-3xl font-bold text-white">Event Management</h2>
-                    <p class="text-gray-400 text-sm mt-1">Schedule and track inter-house competitions.</p>
+                <header class="border-b border-white/10 pb-4">
+                    <h2 class="text-3xl font-extrabold text-white">1. Competition Management</h2>
+                    <p class="text-gray-400 text-sm mt-1">Schedule new inter-house events and configure scoring rules.</p>
                 </header>
                 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Form -->
-                    <div class="glass p-6 rounded-2xl h-fit">
-                        <h3 class="text-lg font-bold mb-4 text-indigo-400"><i class="fa-solid fa-plus mr-2"></i>Create Competition</h3>
+                    <div class="glass p-6 rounded-2xl h-fit border border-indigo-500/20">
+                        <h3 class="text-lg font-bold mb-4 text-indigo-400 flex items-center gap-2"><i class="fa-solid fa-plus-circle"></i> Create Competition</h3>
                         <form onsubmit="handleCompSubmit(event)" class="space-y-4">
                             <div>
-                                <label class="block text-xs font-semibold text-gray-400 mb-1">Event Name</label>
-                                <input type="text" id="compName" required class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                                <label class="block text-xs font-semibold text-gray-400 mb-1">Competition Name</label>
+                                <input type="text" id="compName" required placeholder="e.g. Inter-House Football" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-gray-400 mb-1">Category</label>
-                                <select id="compCategory" class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-sm text-white">
-                                    <option>Sports</option><option>Academics</option><option>Arts & Culture</option><option>Technology</option>
+                                <select id="compCategory" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                                    <option value="Individual">Individual Competition</option>
+                                    <option value="Team">Team Competition</option>
                                 </select>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-400 mb-1">Date</label>
-                                    <input type="date" id="compDate" required class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-sm text-white">
+                                    <label class="block text-xs font-semibold text-gray-400 mb-1">Scheduled Date</label>
+                                    <input type="date" id="compDate" required class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-400 mb-1">Max Pts</label>
-                                    <input type="number" id="compMaxPoints" required class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-sm text-white">
+                                    <label class="block text-xs font-semibold text-gray-400 mb-1">Maximum Points</label>
+                                    <input type="number" id="compMaxPoints" value="10" required min="1" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
                                 </div>
                             </div>
-                            <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold transition mt-2">Publish Event</button>
+                            <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold transition mt-2">Publish Competition</button>
                         </form>
                     </div>
                     
-                    <!-- Table -->
-                    <div class="lg:col-span-2 glass p-6 rounded-2xl">
-                        <h3 class="text-lg font-bold mb-4"><i class="fa-solid fa-list mr-2"></i>Official Calendar</h3>
+                    <!-- Calendar Table -->
+                    <div class="lg:col-span-2 glass p-6 rounded-2xl border border-white/10">
+                        <h3 class="text-lg font-bold mb-4 text-white flex items-center gap-2"><i class="fa-solid fa-list-check"></i> Scheduled Competitions Directory</h3>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-sm">
                                 <thead class="text-gray-400 border-b border-white/10">
-                                    <tr><th class="pb-3">Event Name</th><th class="pb-3">Category</th><th class="pb-3">Date</th><th class="pb-3 text-right">Max Pts</th></tr>
+                                    <tr><th class="pb-3">Event Name</th><th class="pb-3">Category</th><th class="pb-3">Date</th><th class="pb-3 text-center">Max Pts</th><th class="pb-3 text-right">Status</th></tr>
                                 </thead>
                                 <tbody id="eventsTableBody" class="divide-y divide-white/5"></tbody>
                             </table>
@@ -153,57 +158,54 @@
                 </div>
             </section>
 
-            <!-- VIEW: STUDENTS -->
+            <!-- PILLAR 2: REGISTER PARTICIPANTS -->
             <section id="view-students" class="view-section space-y-8 hidden">
-                <header>
-                    <h2 class="text-3xl font-bold text-white">Student Directory</h2>
-                    <p class="text-gray-400 text-sm mt-1">Register participants and track individual involvement.</p>
+                <header class="border-b border-white/10 pb-4">
+                    <h2 class="text-3xl font-extrabold text-white">2. Register Participants</h2>
+                    <p class="text-gray-400 text-sm mt-1">Enroll students into competitions and associate them with their respective houses.</p>
                 </header>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Form -->
-                    <div class="glass p-6 rounded-2xl h-fit">
-                        <h3 class="text-lg font-bold mb-4 text-emerald-400"><i class="fa-solid fa-user-plus mr-2"></i>Register Student</h3>
+                    <div class="glass p-6 rounded-2xl h-fit border border-emerald-500/20">
+                        <h3 class="text-lg font-bold mb-4 text-emerald-400 flex items-center gap-2"><i class="fa-solid fa-user-plus"></i> Student Enrollment Form</h3>
                         <form onsubmit="handleStudentSubmit(event)" class="space-y-4">
                             <div>
-                                <label class="block text-xs font-semibold text-gray-400 mb-1">Full Name</label>
-                                <input type="text" id="studName" required class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+                                <label class="block text-xs font-semibold text-gray-400 mb-1">Student Full Name</label>
+                                <input type="text" id="studName" required placeholder="e.g. Rahul Sharma" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-400 mb-1">Roll No.</label>
-                                    <input type="text" id="studRoll" required class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-sm text-white">
+                                    <label class="block text-xs font-semibold text-gray-400 mb-1">Roll Number</label>
+                                    <input type="text" id="studRoll" required placeholder="e.g. 101" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-400 mb-1">Class</label>
-                                    <input type="text" id="studClass" required class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-sm text-white">
+                                    <label class="block text-xs font-semibold text-gray-400 mb-1">Class / Section</label>
+                                    <input type="text" id="studClass" required placeholder="e.g. 10-A" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-400 mb-1">House Affiliation</label>
-                                <select id="studHouse" class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-sm text-white">
-                                    <option value="Blue">🔵 Blue House</option>
+                                <label class="block text-xs font-semibold text-gray-400 mb-1">Select House</label>
+                                <select id="studHouse" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
                                     <option value="Red">🔴 Red House</option>
+                                    <option value="Blue">🔵 Blue House</option>
                                     <option value="Green">🟢 Green House</option>
                                     <option value="Yellow">🟡 Yellow House</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-400 mb-1">Registering For (Event)</label>
-                                <select id="studCompetition" class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-sm text-white"></select>
+                                <label class="block text-xs font-semibold text-gray-400 mb-1">Target Competition</label>
+                                <select id="studCompetition" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500"></select>
                             </div>
-                            <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold transition mt-2">Add to Roster</button>
+                            <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold transition mt-2">Register Participant</button>
                         </form>
                     </div>
 
-                    <!-- Directory & Search -->
-                    <div class="lg:col-span-2 glass p-6 rounded-2xl flex flex-col">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-bold"><i class="fa-solid fa-address-book mr-2"></i>Participant Roster</h3>
-                            <div class="relative w-64">
-                                <i class="fa-solid fa-search absolute left-3 top-3 text-gray-500"></i>
-                                <input type="text" id="studentSearch" oninput="renderStudents()" placeholder="Search names..." class="w-full bg-black/50 border border-white/10 rounded-lg py-2 pl-9 pr-3 text-sm text-white focus:border-emerald-500">
-                            </div>
+                    <!-- Directory Grid -->
+                    <div class="lg:col-span-2 glass p-6 rounded-2xl border border-white/10 flex flex-col">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-users"></i> Registered Participant Roster</h3>
+                            <input type="text" id="studentRosterFilter" oninput="renderStudents()" placeholder="Filter by name, class, or roll..." class="w-full sm:w-64 bg-black border border-white/15 rounded-lg py-2 px-3 text-sm text-white focus:outline-none focus:border-emerald-500">
                         </div>
                         <div class="overflow-y-auto flex-1 max-h-[500px] pr-2 custom-scrollbar">
                             <div id="studentListGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
@@ -212,75 +214,167 @@
                 </div>
             </section>
 
-            <!-- VIEW: RESULTS -->
+            <!-- PILLAR 3: ENTER RESULTS & AUTO-UPDATER -->
             <section id="view-results" class="view-section space-y-8 hidden">
-                <header>
-                    <h2 class="text-3xl font-bold text-white">Results & Engine</h2>
-                    <p class="text-gray-400 text-sm mt-1">Declare winners and view advanced performance metrics.</p>
+                <header class="border-b border-white/10 pb-4">
+                    <h2 class="text-3xl font-extrabold text-white">3. Enter Competition Results</h2>
+                    <p class="text-gray-400 text-sm mt-1">Declare podium positions. Points are automatically calculated and added to overall House totals.</p>
                 </header>
 
-                <!-- Advanced Stats Row -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    <div class="glass p-5 rounded-2xl border-t-4 border-t-indigo-500">
-                        <p class="text-xs text-gray-400 font-bold uppercase">Most Successful House</p>
-                        <h4 id="statBestHouse" class="text-2xl font-black mt-1">Loading...</h4>
-                    </div>
-                    <div class="glass p-5 rounded-2xl border-t-4 border-t-emerald-500">
-                        <p class="text-xs text-gray-400 font-bold uppercase">Total Participants</p>
-                        <h4 id="statParticipants" class="text-2xl font-black mt-1">0 Students</h4>
-                    </div>
-                    <div class="glass p-5 rounded-2xl border-t-4 border-t-purple-500">
-                        <p class="text-xs text-gray-400 font-bold uppercase">Events Completed</p>
-                        <h4 id="statEvents" class="text-2xl font-black mt-1">0 Events</h4>
-                    </div>
-                </div>
-
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Declare Result Form -->
+                    <!-- Form -->
                     <div class="glass p-6 rounded-2xl h-fit border border-amber-500/20">
-                        <h3 class="text-lg font-bold mb-4 text-amber-400"><i class="fa-solid fa-trophy mr-2"></i>Declare Podium</h3>
+                        <h3 class="text-lg font-bold mb-4 text-amber-400 flex items-center gap-2"><i class="fa-solid fa-trophy"></i> Declare Podium Finish</h3>
                         <form onsubmit="handleResultSubmit(event)" class="space-y-4">
                             <div>
-                                <label class="block text-xs font-semibold text-gray-400 mb-1">Select Event</label>
-                                <select id="resCompName" class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-sm text-white"></select>
+                                <label class="block text-xs font-semibold text-gray-400 mb-1">Select Competition</label>
+                                <select id="resCompName" onchange="autoCalculatePoints()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-amber-500"></select>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-400 mb-1">Rank/Position</label>
-                                    <select id="resPosition" class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-sm text-white">
-                                        <option value="1st">🥇 1st Place</option><option value="2nd">🥈 2nd Place</option>
-                                        <option value="3rd">🥉 3rd Place</option><option value="4th">🏅 4th Place</option>
+                                    <label class="block text-xs font-semibold text-gray-400 mb-1">Position Achieved</label>
+                                    <select id="resPosition" onchange="autoCalculatePoints()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-amber-500">
+                                        <option value="1st">🥇 1st Place</option>
+                                        <option value="2nd">🥈 2nd Place</option>
+                                        <option value="3rd">🥉 3rd Place</option>
+                                        <option value="4th">🏅 4th Place</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-400 mb-1">Points</label>
-                                    <input type="number" id="resPoints" required placeholder="e.g. 10" class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-sm text-white">
+                                    <label class="block text-xs font-semibold text-gray-400 mb-1">Points Awarded (Auto)</label>
+                                    <input type="number" id="resPoints" required placeholder="e.g. 10" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-amber-500">
                                 </div>
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-gray-400 mb-1">Winning House</label>
-                                <select id="resHouse" class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-sm text-white">
-                                    <option value="Blue">🔵 Blue House</option>
+                                <select id="resHouse" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-amber-500">
                                     <option value="Red">🔴 Red House</option>
+                                    <option value="Blue">🔵 Blue House</option>
                                     <option value="Green">🟢 Green House</option>
                                     <option value="Yellow">🟡 Yellow House</option>
                                 </select>
                             </div>
-                            <button type="submit" class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition mt-2">Save to Cloud Engine</button>
+                            <button type="submit" class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition mt-2">Publish Result & Update Standings</button>
                         </form>
                     </div>
 
-                    <!-- Log -->
-                    <div class="lg:col-span-2 glass p-6 rounded-2xl">
-                        <h3 class="text-lg font-bold mb-4"><i class="fa-solid fa-clock-rotate-left mr-2"></i>Live Audit Log</h3>
+                    <!-- Audit Log -->
+                    <div class="lg:col-span-2 glass p-6 rounded-2xl border border-white/10">
+                        <h3 class="text-lg font-bold mb-4 text-white flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left"></i> Real-Time Results Audit Log</h3>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-sm">
                                 <thead class="text-gray-400 border-b border-white/10">
-                                    <tr><th class="pb-3">Event</th><th class="pb-3">Position</th><th class="pb-3">House</th><th class="pb-3 text-right">Points</th></tr>
+                                    <tr><th class="pb-3">Competition</th><th class="pb-3">Position</th><th class="pb-3">Winning House</th><th class="pb-3 text-right">Points Earned</th></tr>
                                 </thead>
-                                <tbody id="resultsTableBody" class="divide-y divide-white/5 text-gray-300"></tbody>
+                                <tbody id="resultsTableBody" class="divide-y divide-white/5"></tbody>
                             </table>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PILLAR 5: UNIVERSAL SEARCH ENGINE -->
+            <section id="view-search" class="view-section space-y-8 hidden">
+                <header class="border-b border-white/10 pb-4">
+                    <h2 class="text-3xl font-extrabold text-white">5. Universal Search Engine</h2>
+                    <p class="text-gray-400 text-sm mt-1">Cross-reference records by Student, House, Competition, or Date.</p>
+                </header>
+
+                <!-- Search Mode Tabs -->
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="setSearchMode('student')" id="btn-search-student" class="search-tab active px-5 py-2.5 rounded-xl border border-white/10 font-semibold text-sm transition">
+                        <i class="fa-solid fa-user mr-2"></i>Search by Student
+                    </button>
+                    <button onclick="setSearchMode('house')" id="btn-search-house" class="search-tab px-5 py-2.5 rounded-xl border border-white/10 font-semibold text-sm transition">
+                        <i class="fa-solid fa-flag mr-2"></i>Search by House
+                    </button>
+                    <button onclick="setSearchMode('competition')" id="btn-search-competition" class="search-tab px-5 py-2.5 rounded-xl border border-white/10 font-semibold text-sm transition">
+                        <i class="fa-solid fa-trophy mr-2"></i>Search by Competition
+                    </button>
+                    <button onclick="setSearchMode('date')" id="btn-search-date" class="search-tab px-5 py-2.5 rounded-xl border border-white/10 font-semibold text-sm transition">
+                        <i class="fa-solid fa-calendar mr-2"></i>Search by Date
+                    </button>
+                </div>
+
+                <!-- Interactive Search Console Card -->
+                <div class="glass p-6 rounded-2xl border border-white/10 space-y-6">
+                    <div id="searchControls"></div>
+                    <div id="searchResultsOutput" class="pt-4 border-t border-white/10"></div>
+                </div>
+            </section>
+
+            <!-- PILLAR 6: STATISTICS ENGINE -->
+            <section id="view-stats" class="view-section space-y-8 hidden">
+                <header class="border-b border-white/10 pb-4">
+                    <h2 class="text-3xl font-extrabold text-white">6. Automated Statistics Engine</h2>
+                    <p class="text-gray-400 text-sm mt-1">Live analytics calculating all 5 core metrics required by the school evaluation rubric.</p>
+                </header>
+
+                <!-- Metric 1: Most Successful House Card -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass p-6 rounded-2xl border-t-4 border-t-indigo-500 flex flex-col justify-between">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Metric #1: Most Successful House</p>
+                            <h4 id="statBestHouse" class="text-2xl font-black mt-2 text-indigo-400">Loading...</h4>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-4">Calculated by total cumulative points.</p>
+                    </div>
+
+                    <div class="glass p-6 rounded-2xl border-t-4 border-t-emerald-500 flex flex-col justify-between">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Metric #2: Total Event Wins</p>
+                            <h4 id="statTotalWins" class="text-2xl font-black mt-2 text-emerald-400">0 Victories</h4>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-4">1st place finishes across all events.</p>
+                    </div>
+
+                    <div class="glass p-6 rounded-2xl border-t-4 border-t-amber-500 flex flex-col justify-between">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Metric #3: Student Registrations</p>
+                            <h4 id="statTotalStudents" class="text-2xl font-black mt-2 text-amber-400">0 Enrolled</h4>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-4">Total active roster size.</p>
+                    </div>
+
+                    <div class="glass p-6 rounded-2xl border-t-4 border-t-purple-500 flex flex-col justify-between">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Metric #4: Events Completed</p>
+                            <h4 id="statTotalEvents" class="text-2xl font-black mt-2 text-purple-400">0 Events</h4>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-4">Published competitions.</p>
+                    </div>
+                </div>
+
+                <!-- Charts Section: Competitions Won & House-wise Participation -->
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    <div class="glass p-6 rounded-2xl border border-white/10">
+                        <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-bar text-indigo-400"></i> Metric #2 & #5: Wins & Points per House</h3>
+                        <div class="h-64 relative"><canvas id="statsWinsChart"></canvas></div>
+                    </div>
+                    <div class="glass p-6 rounded-2xl border border-white/10">
+                        <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-emerald-400"></i> Metric #4: House-Wise Participation Rate</h3>
+                        <div class="h-64 relative"><canvas id="statsParticipationChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- Event-Wise Points Breakdown Table (Metric #5) -->
+                <div class="glass p-6 rounded-2xl border border-white/10">
+                    <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-table"></i> Metric #5: Event-Wise Points Tally Matrix</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="text-gray-400 border-b border-white/10">
+                                <tr>
+                                    <th class="pb-3">Competition</th>
+                                    <th class="pb-3">Category</th>
+                                    <th class="pb-3 text-red-400">🔴 Red</th>
+                                    <th class="pb-3 text-blue-400">🔵 Blue</th>
+                                    <th class="pb-3 text-emerald-400">🟢 Green</th>
+                                    <th class="pb-3 text-amber-400">🟡 Yellow</th>
+                                    <th class="pb-3 text-right">Total Pts</th>
+                                </tr>
+                            </thead>
+                            <tbody id="eventPointsMatrixBody" class="divide-y divide-white/5"></tbody>
+                        </table>
                     </div>
                 </div>
             </section>
@@ -288,11 +382,12 @@
         </div>
     </main>
 
-    <!-- FIREBASE & LOGIC SCRIPT -->
+    <!-- FIREBASE & CORE ENGINE APPLICATION SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
+        // Your Exact Firebase Project Credentials
         const firebaseConfig = {
             apiKey: "AIzaSyAfcEToC0bCVIGlQe8bZFN0xt-2reTWqZY",
             authDomain: "schoolhouseportal.firebaseapp.com",
@@ -305,19 +400,23 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // Core State Object
         let appData = {
             houses: {
-                Blue: { name: "Blue", emoji: "🔵", color: "text-blue-400", border: "border-blue-500/30", glow: "glow-blue", bg: "bg-blue-500/10", points: 0, wins: 0 },
-                Red: { name: "Red", emoji: "🔴", color: "text-red-400", border: "border-red-500/30", glow: "glow-red", bg: "bg-red-500/10", points: 0, wins: 0 },
-                Green: { name: "Green", emoji: "🟢", color: "text-emerald-400", border: "border-emerald-500/30", glow: "glow-green", bg: "bg-emerald-500/10", points: 0, wins: 0 },
-                Yellow: { name: "Yellow", emoji: "🟡", color: "text-amber-400", border: "border-amber-500/30", glow: "glow-yellow", bg: "bg-amber-500/10", points: 0, wins: 0 }
+                Red: { name: "Red", emoji: "🔴", color: "text-red-400", border: "border-red-500/30", bg: "bg-red-500/10", points: 0, wins: 0 },
+                Blue: { name: "Blue", emoji: "🔵", color: "text-blue-400", border: "border-blue-500/30", bg: "bg-blue-500/10", points: 0, wins: 0 },
+                Green: { name: "Green", emoji: "🟢", color: "text-emerald-400", border: "border-emerald-500/30", bg: "bg-emerald-500/10", points: 0, wins: 0 },
+                Yellow: { name: "Yellow", emoji: "🟡", color: "text-amber-400", border: "border-amber-500/30", bg: "bg-amber-500/10", points: 0, wins: 0 }
             },
-            competitions: [], results: [], students: []
+            competitions: [],
+            students: [],
+            results: []
         };
 
-        let doughChart = null, barChart = null;
+        let currentSearchMode = 'student';
+        let chartWins = null, chartPart = null;
 
-        // SPA Navigation
+        // Navigation Engine
         window.navigate = function(viewId) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -337,164 +436,409 @@
             }
         });
 
-        async function saveToCloud(successMsg) {
+        async function saveToCloud(msg) {
             try {
                 await setDoc(docRef, appData);
-                Swal.fire({ title: 'Saved!', text: successMsg, icon: 'success', background: '#111', color: '#fff', confirmButtonColor: '#4f46e5', timer: 1500 });
-            } catch (error) {
-                Swal.fire({ title: 'Error', text: error.message, icon: 'error', background: '#111', color: '#fff' });
+                Swal.fire({ title: 'Success!', text: msg, icon: 'success', background: '#111', color: '#fff', confirmButtonColor: '#4f46e5', timer: 1500 });
+            } catch (err) {
+                Swal.fire({ title: 'Database Error', text: err.message, icon: 'error', background: '#111', color: '#fff' });
             }
         }
 
-        // --- Core Functions ---
+        // --- PILLAR 1: ADD COMPETITION ---
         window.handleCompSubmit = (e) => {
             e.preventDefault();
-            const name = document.getElementById('compName').value;
+            const name = document.getElementById('compName').value.trim();
+            if(appData.competitions.some(c => c.name.toLowerCase() === name.toLowerCase())) {
+                Swal.fire({ title: 'Duplicate Event', text: 'A competition with this name already exists.', icon: 'warning', background: '#111', color: '#fff' });
+                return;
+            }
+
             appData.competitions.push({
-                name, category: document.getElementById('compCategory').value,
-                date: document.getElementById('compDate').value, maxPoints: document.getElementById('compMaxPoints').value
+                name,
+                category: document.getElementById('compCategory').value,
+                date: document.getElementById('compDate').value,
+                maxPoints: parseInt(document.getElementById('compMaxPoints').value) || 10
             });
-            saveToCloud('Competition added successfully.');
+
+            saveToCloud('Competition created successfully!');
+            e.target.reset();
+            document.getElementById('compMaxPoints').value = "10";
+        };
+
+        // --- PILLAR 2: REGISTER PARTICIPANTS ---
+        window.handleStudentSubmit = (e) => {
+            e.preventDefault();
+            const roll = document.getElementById('studRoll').value.trim();
+            const comp = document.getElementById('studCompetition').value;
+
+            if(!comp) {
+                Swal.fire({ title: 'No Event Selected', text: 'Please create an event first before enrolling students.', icon: 'warning', background: '#111', color: '#fff' });
+                return;
+            }
+
+            // Duplicate roll check for same event
+            if(appData.students.some(s => s.roll === roll && s.competition === comp)) {
+                Swal.fire({ title: 'Duplicate Registration', text: `Student with Roll No. ${roll} is already registered for ${comp}.`, icon: 'error', background: '#111', color: '#fff' });
+                return;
+            }
+
+            appData.students.push({
+                name: document.getElementById('studName').value.trim(),
+                roll,
+                class: document.getElementById('studClass').value.trim(),
+                house: document.getElementById('studHouse').value,
+                competition: comp
+            });
+
+            saveToCloud('Participant enrolled successfully!');
             e.target.reset();
         };
 
-        window.handleStudentSubmit = (e) => {
-            e.preventDefault();
-            appData.students.push({
-                name: document.getElementById('studName').value, roll: document.getElementById('studRoll').value,
-                class: document.getElementById('studClass').value, house: document.getElementById('studHouse').value,
-                event: document.getElementById('studCompetition').value
-            });
-            saveToCloud('Student registered successfully.');
-            e.target.reset();
+        // --- PILLAR 3: ENTER RESULTS & AUTO-POINTS ---
+        window.autoCalculatePoints = () => {
+            const compName = document.getElementById('resCompName').value;
+            const pos = document.getElementById('resPosition').value;
+            const comp = appData.competitions.find(c => c.name === compName);
+            
+            if(!comp) return;
+            
+            const maxPts = comp.maxPoints || 10;
+            let awarded = maxPts;
+
+            if(pos === '2nd') awarded = Math.round(maxPts * 0.7);
+            else if(pos === '3rd') awarded = Math.round(maxPts * 0.5);
+            else if(pos === '4th') awarded = Math.round(maxPts * 0.3);
+
+            document.getElementById('resPoints').value = awarded;
         };
 
         window.handleResultSubmit = (e) => {
             e.preventDefault();
+            const compName = document.getElementById('resCompName').value;
             const house = document.getElementById('resHouse').value;
             const points = parseInt(document.getElementById('resPoints').value);
             const pos = document.getElementById('resPosition').value;
 
-            appData.results.push({
-                event: document.getElementById('resCompName').value, pos, house, points
-            });
+            if(!compName) return;
+
+            appData.results.push({ event: compName, pos, house, points, date: new Date().toLocaleDateString() });
             
+            // Auto update house overall totals
             appData.houses[house].points += points;
             if (pos === '1st') appData.houses[house].wins += 1;
-            
-            saveToCloud('Result declared and points awarded!');
+
+            saveToCloud('Result published and house points recalculated!');
             e.target.reset();
+            autoCalculatePoints();
         };
 
-        // --- Rendering Logic ---
+        // --- RENDER PIPELINE ---
         function renderAll() {
-            renderDashboard();
+            renderLeaderboard();
             renderDropdowns();
             renderTables();
             renderStudents();
-            renderCharts();
-            renderAdvancedStats();
+            renderSearchConsole();
+            renderStats();
         }
 
-        function renderDashboard() {
+        // Pillar 4 Render
+        function renderLeaderboard() {
             const grid = document.getElementById('leaderboardGrid');
             const sorted = Object.entries(appData.houses).sort((a, b) => b[1].points - a[1].points);
-            grid.innerHTML = sorted.map(([key, h], i) => `
-                <div class="glass p-5 rounded-2xl border ${h.border} ${h.glow} relative">
-                    <span class="absolute top-4 right-4 text-xs font-bold px-2 py-1 bg-white/10 rounded-md text-gray-300">Rank #${i+1}</span>
-                    <h3 class="text-xl font-bold ${h.color} mb-1">${h.emoji} ${key} House</h3>
-                    <div class="flex items-end gap-2 mt-4">
-                        <span class="text-4xl font-black text-white">${h.points}</span><span class="text-gray-400 mb-1">pts</span>
-                    </div>
-                    <div class="mt-4 pt-4 border-t border-white/10 flex justify-between text-sm">
-                        <span class="text-gray-400">Wins:</span><span class="text-white font-bold">${h.wins} 🏆</span>
-                    </div>
-                </div>
-            `).join('');
-        }
+            const topPoints = sorted.length ? sorted[0][1].points : 0;
 
-        window.renderStudents = function() {
-            const query = document.getElementById('studentSearch')?.value.toLowerCase() || '';
-            const grid = document.getElementById('studentListGrid');
-            const filtered = appData.students.filter(s => s.name.toLowerCase().includes(query) || s.event.toLowerCase().includes(query));
-            
-            if(filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-2 p-4 text-center text-gray-500">No students found.</div>`;
-                return;
-            }
+            grid.innerHTML = sorted.map(([key, h], i) => {
+                const gap = topPoints - h.points;
+                const gapText = i === 0 ? "Leading Championship" : `Behind 1st place by ${gap} pts`;
 
-            grid.innerHTML = filtered.slice().reverse().map(s => {
-                const h = appData.houses[s.house];
-                return `<div class="p-4 rounded-xl border border-white/5 bg-white/5 flex flex-col gap-2">
-                    <div class="flex justify-between"><span class="font-bold text-white">${s.name}</span><span class="text-xs px-2 py-1 rounded bg-black text-gray-400">${s.class}</span></div>
-                    <div class="text-sm text-gray-400"><i class="fa-solid fa-id-badge mr-1"></i> ${s.roll} | <i class="fa-solid fa-flag mr-1"></i> ${s.event}</div>
-                    <div class="mt-1 ${h.color} text-xs font-bold uppercase tracking-wider">${h.emoji} ${s.house} House</div>
-                </div>`;
+                return `
+                    <div class="glass p-6 rounded-2xl border ${h.border} ${h.bg} relative flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-black uppercase tracking-wider px-2.5 py-1 bg-white/10 rounded-md text-gray-300">Rank #${i+1}</span>
+                                <span class="text-xs text-gray-400 font-semibold">${gapText}</span>
+                            </div>
+                            <h3 class="text-2xl font-black ${h.color} mt-2">${h.emoji} ${key} House</h3>
+                            <div class="flex items-end gap-2 mt-4">
+                                <span class="text-5xl font-black text-white tracking-tight">${h.points}</span>
+                                <span class="text-gray-400 font-bold mb-1">points</span>
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-white/10 flex justify-between text-xs font-semibold">
+                            <span class="text-gray-400">1st Place Victories:</span>
+                            <span class="text-white font-bold">${h.wins} 🏆</span>
+                        </div>
+                    </div>
+                `;
             }).join('');
-        }
 
-        function renderAdvancedStats() {
-            // Best House
-            const sorted = Object.entries(appData.houses).sort((a,b) => b[1].points - a[1].points);
-            document.getElementById('statBestHouse').innerHTML = sorted.length ? `${sorted[0][1].emoji} ${sorted[0][0]}` : 'N/A';
-            document.getElementById('statBestHouse').className = `text-2xl font-black mt-1 ${sorted.length ? sorted[0][1].color : 'text-white'}`;
-            // Totals
-            document.getElementById('statParticipants').innerText = appData.students.length;
-            document.getElementById('statEvents').innerText = appData.competitions.length;
-        }
-
-        function renderTables() {
-            document.getElementById('eventsTableBody').innerHTML = appData.competitions.slice().reverse().map(c => 
-                `<tr class="hover:bg-white/5"><td class="py-3 font-semibold text-white">${c.name}</td><td class="py-3 text-gray-400">${c.category}</td><td class="py-3 text-gray-400">${c.date}</td><td class="py-3 text-right font-bold">${c.maxPoints}</td></tr>`
-            ).join('') || `<tr><td colspan="4" class="py-4 text-center text-gray-500">No events scheduled.</td></tr>`;
-
-            document.getElementById('resultsTableBody').innerHTML = appData.results.slice().reverse().map(r => 
-                `<tr class="hover:bg-white/5"><td class="py-3 font-semibold text-white">${r.event}</td><td class="py-3 text-gray-400">${r.pos}</td><td class="py-3 font-bold ${appData.houses[r.house].color}">${appData.houses[r.house].emoji} ${r.house}</td><td class="py-3 text-right text-emerald-400 font-bold">+${r.points}</td></tr>`
-            ).join('') || `<tr><td colspan="4" class="py-4 text-center text-gray-500">No results recorded.</td></tr>`;
+            // Highlights Feed
+            document.getElementById('dashboardRecentHighlights').innerHTML = appData.results.slice().reverse().slice(0, 4).map(r => `
+                <div class="py-3 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-bold text-white">${r.event}</p>
+                        <p class="text-xs text-gray-400">${r.pos} Place awarded to <span class="${appData.houses[r.house].color} font-bold">${appData.houses[r.house].emoji} ${r.house} House</span></p>
+                    </div>
+                    <span class="text-sm font-extrabold text-emerald-400">+${r.points} Pts</span>
+                </div>
+            `).join('') || `<p class="text-sm text-gray-500 py-2">No championship events completed yet.</p>`;
         }
 
         function renderDropdowns() {
             const opts = appData.competitions.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-            const fallback = `<option value="">Add Event First</option>`;
-            document.getElementById('compCategory').innerHTML = `<option>Sports</option><option>Academics</option><option>Arts & Culture</option><option>Technology</option>`;
+            const fallback = `<option value="">No Competitions Available</option>`;
             document.getElementById('studCompetition').innerHTML = opts || fallback;
             document.getElementById('resCompName').innerHTML = opts || fallback;
+            autoCalculatePoints();
         }
 
-        function renderCharts() {
+        function renderTables() {
+            document.getElementById('eventsTableBody').innerHTML = appData.competitions.slice().reverse().map(c => {
+                const isDone = appData.results.some(r => r.event === c.name);
+                return `<tr class="hover:bg-white/5">
+                    <td class="py-3 font-semibold text-white">${c.name}</td>
+                    <td class="py-3 text-gray-400">${c.category}</td>
+                    <td class="py-3 text-gray-400">${c.date}</td>
+                    <td class="py-3 text-center font-bold text-indigo-400">${c.maxPoints}</td>
+                    <td class="py-3 text-right"><span class="px-2 py-1 text-xs rounded ${isDone ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'} font-bold">${isDone ? 'Completed' : 'Scheduled'}</span></td>
+                </tr>`;
+            }).join('') || `<tr><td colspan="5" class="py-4 text-center text-gray-500">No competitions created yet.</td></tr>`;
+
+            document.getElementById('resultsTableBody').innerHTML = appData.results.slice().reverse().map(r => `
+                <tr class="hover:bg-white/5">
+                    <td class="py-3 font-semibold text-white">${r.event}</td>
+                    <td class="py-3 text-gray-400">${r.pos}</td>
+                    <td class="py-3 font-bold ${appData.houses[r.house].color}">${appData.houses[r.house].emoji} ${r.house}</td>
+                    <td class="py-3 text-right text-emerald-400 font-bold">+${r.points} Pts</td>
+                </tr>
+            `).join('') || `<tr><td colspan="4" class="py-4 text-center text-gray-500">No results published yet.</td></tr>`;
+        }
+
+        window.renderStudents = () => {
+            const filter = document.getElementById('studentRosterFilter')?.value.toLowerCase() || '';
+            const grid = document.getElementById('studentListGrid');
+            const filtered = appData.students.filter(s => 
+                s.name.toLowerCase().includes(filter) || 
+                s.roll.toLowerCase().includes(filter) || 
+                s.class.toLowerCase().includes(filter)
+            );
+
+            grid.innerHTML = filtered.slice().reverse().map(s => {
+                const h = appData.houses[s.house];
+                return `<div class="p-4 rounded-xl border border-white/10 bg-white/5 flex flex-col justify-between gap-2">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-bold text-white text-base">${s.name}</h4>
+                            <span class="text-xs text-gray-400">Roll No: <b class="text-gray-200">${s.roll}</b> | Class: <b class="text-gray-200">${s.class}</b></span>
+                        </div>
+                        <span class="text-xs font-bold ${h.color} ${h.bg} px-2.5 py-1 rounded-md border ${h.border}">${h.emoji} ${s.house}</span>
+                    </div>
+                    <div class="pt-2 border-t border-white/5 text-xs text-gray-400">
+                        <i class="fa-solid fa-trophy mr-1 text-amber-400"></i> Event: <b class="text-white">${s.competition}</b>
+                    </div>
+                </div>`;
+            }).join('') || `<div class="col-span-2 text-center text-gray-500 py-6">No matching students found.</div>`;
+        };
+
+        // --- PILLAR 5: SEARCH ENGINE IMPLEMENTATION ---
+        window.setSearchMode = (mode) => {
+            currentSearchMode = mode;
+            document.querySelectorAll('.search-tab').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-search-${mode}`).classList.add('active');
+            renderSearchConsole();
+        };
+
+        function renderSearchConsole() {
+            const controls = document.getElementById('searchControls');
+            const output = document.getElementById('searchResultsOutput');
+
+            if (currentSearchMode === 'student') {
+                controls.innerHTML = `
+                    <label class="block text-xs font-bold text-gray-400 mb-2">Search Student by Name or Roll Number</label>
+                    <input type="text" id="searchInput" oninput="runSearch()" placeholder="Type student name or roll..." class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                `;
+            } else if (currentSearchMode === 'house') {
+                controls.innerHTML = `
+                    <label class="block text-xs font-bold text-gray-400 mb-2">Select House to View Profile</label>
+                    <select id="searchInput" onchange="runSearch()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <option value="Red">🔴 Red House</option><option value="Blue">🔵 Blue House</option>
+                        <option value="Green">🟢 Green House</option><option value="Yellow">🟡 Yellow House</option>
+                    </select>
+                `;
+            } else if (currentSearchMode === 'competition') {
+                const options = appData.competitions.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+                controls.innerHTML = `
+                    <label class="block text-xs font-bold text-gray-400 mb-2">Select Competition to View Podium & Details</label>
+                    <select id="searchInput" onchange="runSearch()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">${options || '<option value="">No Competitions</option>'}</select>
+                `;
+            } else if (currentSearchMode === 'date') {
+                controls.innerHTML = `
+                    <label class="block text-xs font-bold text-gray-400 mb-2">Select Date to View Events</label>
+                    <input type="date" id="searchInput" onchange="runSearch()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                `;
+            }
+            window.runSearch();
+        }
+
+        window.runSearch = () => {
+            const query = document.getElementById('searchInput')?.value.trim().toLowerCase() || '';
+            const output = document.getElementById('searchResultsOutput');
+
+            if (currentSearchMode === 'student') {
+                const matches = appData.students.filter(s => s.name.toLowerCase().includes(query) || s.roll.toLowerCase().includes(query));
+                if (!matches.length) { output.innerHTML = `<p class="text-sm text-gray-500">No students matching "${query}".</p>`; return; }
+                
+                output.innerHTML = matches.map(s => `
+                    <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 space-y-2">
+                        <div class="flex justify-between">
+                            <span class="font-bold text-white text-base">${s.name} (Roll: ${s.roll})</span>
+                            <span class="text-xs font-bold ${appData.houses[s.house].color}">${appData.houses[s.house].emoji} ${s.house} House</span>
+                        </div>
+                        <p class="text-xs text-gray-400">Class: ${s.class} | Registered Competition: <b class="text-indigo-400">${s.competition}</b></p>
+                    </div>
+                `).join('');
+            } 
+            else if (currentSearchMode === 'house') {
+                const houseName = document.getElementById('searchInput').value;
+                const h = appData.houses[houseName];
+                const houseStudents = appData.students.filter(s => s.house === houseName);
+                const houseWins = appData.results.filter(r => r.house === houseName);
+
+                output.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-xl ${h.bg} border ${h.border} flex justify-between items-center">
+                            <div>
+                                <h3 class="text-xl font-bold ${h.color}">${h.emoji} ${houseName} House Profile</h3>
+                                <p class="text-xs text-gray-400">Total Score: <b class="text-white">${h.points} pts</b> | 1st Victories: <b class="text-white">${h.wins}</b></p>
+                            </div>
+                            <span class="text-2xl font-black text-white">${houseStudents.length} Members</span>
+                        </div>
+                        <h4 class="text-sm font-bold text-gray-300">Awarded Results for ${houseName}:</h4>
+                        <div class="divide-y divide-white/5 text-sm">
+                            ${houseWins.map(w => `<div class="py-2 flex justify-between"><span class="text-white">${w.event} (${w.pos} Place)</span><span class="text-emerald-400 font-bold">+${w.points} Pts</span></div>`).join('') || '<p class="text-xs text-gray-500 py-2">No wins recorded yet.</p>'}
+                        </div>
+                    </div>
+                `;
+            }
+            else if (currentSearchMode === 'competition') {
+                const compName = document.getElementById('searchInput').value;
+                const comp = appData.competitions.find(c => c.name === compName);
+                const results = appData.results.filter(r => r.event === compName);
+                const participants = appData.students.filter(s => s.competition === compName);
+
+                if(!comp) { output.innerHTML = `<p class="text-xs text-gray-500">Select a competition to view results.</p>`; return; }
+
+                output.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="p-4 bg-white/5 rounded-xl border border-white/10 flex justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold text-white">${comp.name}</h3>
+                                <p class="text-xs text-gray-400">Category: ${comp.category} | Date: ${comp.date} | Max Points: ${comp.maxPoints}</p>
+                            </div>
+                            <span class="text-sm font-bold text-indigo-400">${participants.length} Enrolled</span>
+                        </div>
+                        <h4 class="text-sm font-bold text-gray-300">Podium Standings:</h4>
+                        <div class="divide-y divide-white/5 text-sm">
+                            ${results.map(r => `<div class="py-2 flex justify-between"><span class="font-bold ${appData.houses[r.house].color}">${r.pos}: ${appData.houses[r.house].emoji}${r.house} House</span><span class="text-emerald-400 font-bold">+${r.points} Pts</span></div>`).join('') || '<p class="text-xs text-gray-500">No results declared yet.</p>'}
+                        </div>
+                    </div>
+                `;
+            }
+            else if (currentSearchMode === 'date') {
+                const selectedDate = document.getElementById('searchInput').value;
+                if(!selectedDate) { output.innerHTML = `<p class="text-xs text-gray-500">Select a date above.</p>`; return; }
+                const matches = appData.competitions.filter(c => c.date === selectedDate);
+
+                output.innerHTML = matches.map(c => `
+                    <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-2 flex justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-white text-base">${c.name}</h4>
+                            <span class="text-xs text-gray-400">Category: ${c.category} | Max Points: ${c.maxPoints}</span>
+                        </div>
+                        <span class="text-xs px-2.5 py-1 bg-indigo-500/20 text-indigo-400 rounded font-bold">Scheduled for ${c.date}</span>
+                    </div>
+                `).join('') || `<p class="text-sm text-gray-500">No competitions scheduled on ${selectedDate}.</p>`;
+            }
+        };
+
+        // --- PILLAR 6: STATISTICS ENGINE ---
+        function renderStats() {
+            // Metric 1: Most Successful House
+            const sorted = Object.entries(appData.houses).sort((a,b) => b[1].points - a[1].points);
+            document.getElementById('statBestHouse').innerHTML = sorted.length ? `${sorted[0][1].emoji} ${sorted[0][0]}` : 'N/A';
+            document.getElementById('statBestHouse').className = `text-2xl font-black mt-2 ${sorted.length ? sorted[0][1].color : 'text-white'}`;
+
+            // Metric 2, 3, 4 Counters
+            const totalWins = Object.values(appData.houses).reduce((acc, h) => acc + h.wins, 0);
+            document.getElementById('statTotalWins').innerText = `${totalWins} Victories`;
+            document.getElementById('statTotalStudents').innerText = `${appData.students.length} Enrolled`;
+            document.getElementById('statTotalEvents').innerText = `${appData.competitions.length} Events`;
+
+            // Render Charts
+            const labels = Object.keys(appData.houses);
+            const winsData = labels.map(k => appData.houses[k].wins);
+            const pointsData = labels.map(k => appData.houses[k].points);
+            const partData = labels.map(k => appData.students.filter(s => s.house === k).length);
+            const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b'];
+
             Chart.defaults.color = '#9ca3af';
             Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
-            
-            const labels = Object.keys(appData.houses);
-            const pointsData = labels.map(k => appData.houses[k].points);
-            const winsData = labels.map(k => appData.houses[k].wins);
-            const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b'];
 
-            if(doughChart) { doughChart.data.datasets[0].data = pointsData; doughChart.update(); }
-            else {
-                doughChart = new Chart(document.getElementById('doughnutChart').getContext('2d'), {
-                    type: 'doughnut', data: { labels, datasets: [{ data: pointsData, backgroundColor: colors, borderWidth: 0 }] },
+            // Chart 1: Wins & Points Bar Chart
+            if(chartWins) {
+                chartWins.data.datasets[0].data = winsData;
+                chartWins.data.datasets[1].data = pointsData;
+                chartWins.update();
+            } else {
+                chartWins = new Chart(document.getElementById('statsWinsChart').getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [
+                            { label: '1st Victories', data: winsData, backgroundColor: '#6366f1', borderRadius: 6 },
+                            { label: 'Total Points', data: pointsData, backgroundColor: '#10b981', borderRadius: 6 }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+                });
+            }
+
+            // Chart 2: House Participation Rate
+            if(chartPart) {
+                chartPart.data.datasets[0].data = partData;
+                chartPart.update();
+            } else {
+                chartPart = new Chart(document.getElementById('statsParticipationChart').getContext('2d'), {
+                    type: 'doughnut',
+                    data: { labels, datasets: [{ data: partData, backgroundColor: colors, borderWidth: 0 }] },
                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
                 });
             }
 
-            if(barChart) { barChart.data.datasets[0].data = winsData; barChart.update(); }
-            else {
-                barChart = new Chart(document.getElementById('barChart').getContext('2d'), {
-                    type: 'bar', data: { labels, datasets: [{ label: '1st Place Wins', data: winsData, backgroundColor: colors, borderRadius: 6 }] },
-                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } }
-                });
-            }
+            // Metric 5: Event-Wise Points Matrix Table
+            document.getElementById('eventPointsMatrixBody').innerHTML = appData.competitions.map(c => {
+                const compResults = appData.results.filter(r => r.event === c.name);
+                const getHousePts = (hName) => compResults.filter(r => r.house === hName).reduce((a, b) => a + b.points, 0);
+                
+                const redPts = getHousePts('Red');
+                const bluePts = getHousePts('Blue');
+                const greenPts = getHousePts('Green');
+                const yellowPts = getHousePts('Yellow');
+                const total = redPts + bluePts + greenPts + yellowPts;
+
+                return `<tr class="hover:bg-white/5">
+                    <td class="py-3 font-semibold text-white">${c.name}</td>
+                    <td class="py-3 text-gray-400">${c.category}</td>
+                    <td class="py-3 font-bold text-red-400">${redPts}</td>
+                    <td class="py-3 font-bold text-blue-400">${bluePts}</td>
+                    <td class="py-3 font-bold text-emerald-400">${greenPts}</td>
+                    <td class="py-3 font-bold text-amber-400">${yellowPts}</td>
+                    <td class="py-3 text-right font-black text-white">${total} Pts</td>
+                </tr>`;
+            }).join('') || `<tr><td colspan="7" class="py-4 text-center text-gray-500">No events matrix available.</td></tr>`;
         }
-        
-        window.exportCSV = () => {
-            let csv = "Rank,House,Points,Wins\n";
-            Object.entries(appData.houses).sort((a,b) => b[1].points - a[1].points).forEach(([h, d], i) => csv += `${i+1},${h},${d.points},${d.wins}\n`);
-            const a = document.createElement('a');
-            a.href = window.URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-            a.download = 'House_Standings.csv';
-            a.click();
-        };
     </script>
 </body>
 </html>
