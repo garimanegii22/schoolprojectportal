@@ -21,10 +21,6 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDK Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #07090e; color: #f3f4f6; }
         .glass { background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
@@ -250,23 +246,27 @@
 
     </div>
 
-    <!-- Cloud Sync Script -->
-    <script>
-        // ----------------------------------------------------
-        // REPLACE WITH YOUR FREE FIREBASE CONFIG KEYS HERE
-        // ----------------------------------------------------
+    <!-- Firebase SDK & Real-Time Sync Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-analytics.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+        // Your exact Firebase configuration
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY_HERE",
-            authDomain: "your-project.firebaseapp.com",
-            projectId: "your-project-id",
-            storageBucket: "your-project.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123:web:abc"
+            apiKey: "AIzaSyAfcEToC0bCVIGlQe8bZFN0xt-2reTWqZY",
+            authDomain: "schoolhouseportal.firebaseapp.com",
+            projectId: "schoolhouseportal",
+            storageBucket: "schoolhouseportal.firebasestorage.app",
+            messagingSenderId: "902296545103",
+            appId: "1:902296545103:web:0289b98730bc251ced873a",
+            measurementId: "G-65Y72WQ90N"
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        // Initialize Firebase & Firestore
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
 
         let appData = {
             houses: {
@@ -282,211 +282,40 @@
 
         let chartInstance = null;
 
-        // REAL-TIME LISTENER: Listens to Firestore database changes live
-        db.collection("portalData").doc("mainState").onSnapshot((doc) => {
-            if (doc.exists) {
-                appData = doc.data();
+        // REAL-TIME CLOUD LISTENER (Firestore modular syntax)
+        const docRef = doc(db, "portalData", "mainState");
+        onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists()) {
+                appData = docSnap.data();
                 renderAll();
             } else {
-                // Initialize doc if empty
-                db.collection("portalData").doc("mainState").set(appData);
+                setDoc(docRef, appData);
             }
         }, (error) => {
             console.error("Cloud sync error:", error);
-            document.getElementById('syncStatus').innerHTML = `<span class="w-2 h-2 rounded-full bg-red-400"></span> Check Firebase Config`;
-            document.getElementById('syncStatus').className = "px-3 py-1.5 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-bold flex items-center gap-2";
+            const statusEl = document.getElementById('syncStatus');
+            if(statusEl) {
+                statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-400"></span> Check Firestore Rules`;
+                statusEl.className = "px-3 py-1.5 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-bold flex items-center gap-2";
+            }
         });
 
-        function saveToCloud() {
-            db.collection("portalData").doc("mainState").set(appData)
-                .then(() => console.log("Synced to cloud!"))
-                .catch((error) => alert("Sync failed: " + error.message));
-        }
-
-        function renderAll() {
-            renderLeaderboard();
-            renderDropdowns();
-            renderResultsTable();
-            renderChart();
-        }
-
-        function renderLeaderboard() {
-            const grid = document.getElementById('leaderboardGrid');
-            const sortedHouses = Object.entries(appData.houses).sort((a,b) => b[1].points - a[1].points);
-            
-            let html = '';
-            sortedHouses.forEach(([key, house], index) => {
-                html += `
-                    <div class="glass p-5 rounded-3xl border ${house.border} ${house.glow} relative overflow-hidden flex flex-col justify-between">
-                        <div class="flex justify-between items-start">
-                            <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-white/5 text-gray-300 border border-white/10">
-                                Rank #${index + 1}
-                            </span>
-                            <span class="text-3xl font-black text-white">${house.points} <span class="text-xs font-normal text-gray-400">pts</span></span>
-                        </div>
-                        <div class="mt-6">
-                            <h3 class="text-2xl font-black ${house.color} flex items-center gap-2">
-                                <span>${house.emoji}</span> ${key}
-                            </h3>
-                            <div class="mt-3 pt-3 border-t border-white/5 flex justify-between text-xs text-gray-400 font-medium">
-                                <span>Wins Recorded:</span>
-                                <span class="text-white font-bold">${house.wins}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            grid.innerHTML = html;
-        }
-
-        function renderDropdowns() {
-            const compSelect = document.getElementById('resCompName');
-            const studCompSelect = document.getElementById('studCompetition');
-            
-            if(appData.competitions.length === 0) {
-                compSelect.innerHTML = `<option value="">Add a competition first</option>`;
-                studCompSelect.innerHTML = `<option value="">Add a competition first</option>`;
-                return;
+        async function saveToCloud() {
+            try {
+                await setDoc(docRef, appData);
+                console.log("Synced to cloud!");
+            } catch (error) {
+                alert("Sync failed: " + error.message);
             }
-
-            let compOptions = '';
-            appData.competitions.forEach(c => {
-                compOptions += `<option value="${c.name}">${c.name} (${c.category})</option>`;
-            });
-            compSelect.innerHTML = compOptions;
-            studCompSelect.innerHTML = compOptions;
         }
 
-        function renderResultsTable() {
-            const tbody = document.getElementById('resultsTableBody');
-            if(appData.results.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500 italic">No cloud results recorded yet.</td></tr>`;
-                return;
-            }
-            let html = '';
-            appData.results.slice().reverse().forEach(r => {
-                html += `
-                    <tr class="hover:bg-white/5 transition">
-                        <td class="p-3 font-semibold text-white">${r.competition}</td>
-                        <td class="p-3 text-gray-400">${r.category}</td>
-                        <td class="p-3"><span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-bold">${r.position}</span></td>
-                        <td class="p-3 font-bold text-white">${r.house}</td>
-                        <td class="p-3 font-bold text-emerald-400">+${r.points} pts</td>
-                    </tr>
-                `;
-            });
-            tbody.innerHTML = html;
-        }
-
-        function renderChart() {
-            const ctx = document.getElementById('pointsChart').getContext('2d');
-            const labels = Object.keys(appData.houses);
-            const data = labels.map(k => appData.houses[k].points);
-            const backgroundColors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b'];
-
-            if (chartInstance) {
-                chartInstance.data.datasets[0].data = data;
-                chartInstance.update();
-                return;
-            }
-
-            chartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{ data: data, backgroundColor: backgroundColors, borderWidth: 0 }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af', font: { size: 11 } } } }
-                }
-            });
-        }
-
-        function switchTab(tab) {
+        // Attach functions to global window scope so HTML buttons can trigger them
+        window.switchTab = function(tab) {
             ['results', 'competition', 'student'].forEach(t => {
-                document.getElementById(`tabContent-${t}`).classList.add('hidden');
-                document.getElementById(`tabBtn-${t}`).className = "flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition text-gray-400 hover:text-white";
+                const content = document.getElementById(`tabContent-${t}`);
+                const btn = document.getElementById(`tabBtn-${t}`);
+                if(content) content.classList.add('hidden');
+                if(btn) btn.className = "flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition text-gray-400 hover:text-white";
             });
-            document.getElementById(`tabContent-${tab}`).classList.remove('hidden');
-            document.getElementById(`tabBtn-${tab}`).className = "flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition bg-indigo-600 text-white shadow-md";
-        }
-
-        function handleResultSubmit(e) {
-            e.preventDefault();
-            const competition = document.getElementById('resCompName').value;
-            const position = document.getElementById('resPosition').value;
-            const house = document.getElementById('resHouse').value;
-            const points = parseInt(document.getElementById('resPoints').value);
-
-            const compObj = appData.competitions.find(c => c.name === competition);
-            const category = compObj ? compObj.category : 'General';
-
-            appData.results.push({ competition, category, position, house, points });
-            if(appData.houses[house]) {
-                appData.houses[house].points += points;
-                if(position === '1st') appData.houses[house].wins += 1;
-            }
-
-            saveToCloud();
-            e.target.reset();
-        }
-
-        function handleCompSubmit(e) {
-            e.preventDefault();
-            const name = document.getElementById('compName').value;
-            const category = document.getElementById('compCategory').value;
-            const date = document.getElementById('compDate').value;
-            const maxPoints = parseInt(document.getElementById('compMaxPoints').value);
-
-            appData.competitions.push({ name, category, date, maxPoints });
-            saveToCloud();
-            e.target.reset();
-            switchTab('results');
-        }
-
-        function handleStudentSubmit(e) {
-            e.preventDefault();
-            const name = document.getElementById('studName').value;
-            const roll = document.getElementById('studRoll').value;
-            const grade = document.getElementById('studClass').value;
-            const house = document.getElementById('studHouse').value;
-            const competition = document.getElementById('studCompetition').value;
-
-            appData.students.push({ name, roll, class: grade, house, competition });
-            saveToCloud();
-            e.target.reset();
-        }
-
-        function performSearch() {
-            const query = document.getElementById('searchInput').value.toLowerCase().trim();
-            const resultsDiv = document.getElementById('searchResults');
-            if(!query) {
-                resultsDiv.innerHTML = `<p class="text-gray-500 italic text-center py-4">Type above to filter records...</p>`;
-                return;
-            }
-            let html = '';
-            appData.students.filter(s => s.name.toLowerCase().includes(query) || s.house.toLowerCase().includes(query) || s.competition.toLowerCase().includes(query))
-                .forEach(s => { html += `<div class="p-2.5 rounded-xl bg-white/5 border border-white/5">👤 <b>${s.name}</b> (${s.house} House) — Registered for <i>${s.competition}</i></div>`; });
-            appData.competitions.filter(c => c.name.toLowerCase().includes(query) || c.category.toLowerCase().includes(query))
-                .forEach(c => { html += `<div class="p-2.5 rounded-xl bg-white/5 border border-white/5">🏆 Event: <b>${c.name}</b> (${c.category}) on ${c.date}</div>`; });
-            resultsDiv.innerHTML = html || `<p class="text-gray-500 text-center py-4">No matching records found in cloud database.</p>`;
-        }
-
-        function exportCSV() {
-            let csv = "Rank,House,Points,Wins\n";
-            const sorted = Object.entries(appData.houses).sort((a,b) => b[1].points - a[1].points);
-            sorted.forEach(([house, info], idx) => {
-                csv += `${idx+1},${house},${info.points},${info.wins}\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', 'cloud_house_standings.csv');
-            a.click();
-        }
-    </script>
-</body>
-</html>
+            const activeContent = document.getElementById(`tabContent-${tab}`);
+      
