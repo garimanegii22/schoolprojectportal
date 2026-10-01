@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School House Championship Management System</title>
+    <title>School House Championship System</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,7 +19,7 @@
         }
     </script>
     
-    <!-- External Dependencies: Chart.js, SweetAlert2 & FontAwesome -->
+    <!-- Chart.js, SweetAlert2 & FontAwesome -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -27,13 +27,16 @@
     
     <style>
         body { background-color: #050505; color: #f3f4f6; overflow: hidden; }
-        .glass { background: rgba(17, 17, 17, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.07); }
+        .glass { background: rgba(17, 17, 17, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
         .nav-item.active { background: linear-gradient(90deg, rgba(79, 70, 229, 0.25) 0%, transparent 100%); border-left: 3px solid #6366f1; color: white; }
         .nav-item { border-left: 3px solid transparent; transition: all 0.2s ease-in-out; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #050505; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #262626; border-radius: 10px; }
         .search-tab.active { background-color: #4f46e5; color: white; border-color: #6366f1; }
+        .house-card { transition: all 0.2s ease-in-out; }
+        .house-card:hover { transform: translateY(-2px); }
+        .house-card.selected { ring: 2px solid #6366f1; background: rgba(79, 70, 229, 0.2); }
         
         @media print {
             aside, nav, button, .no-print, #adminAuthBtn { display: none !important; }
@@ -51,59 +54,60 @@
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-xl shadow-lg shadow-indigo-500/20">🏆</div>
                 <div class="hidden md:block ml-3">
                     <h1 class="font-extrabold text-base tracking-wide text-white leading-none">HousePortal</h1>
-                    <span class="text-[10px] text-indigo-400 font-semibold tracking-wider uppercase">CS Championship</span>
+                    <span class="text-[10px] text-indigo-400 font-semibold tracking-wider uppercase">Championship Hub</span>
                 </div>
             </div>
         </div>
         
-        <!-- Navigation Category 1: Public Views -->
-        <div class="py-2 px-6 text-[10px] font-extrabold tracking-wider text-gray-500 uppercase hidden md:block mt-2">Public Portal</div>
-        <nav class="flex-col gap-1">
-            <button onclick="navigate('dashboard')" id="nav-dashboard" class="nav-item active flex items-center px-6 py-3 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
-                <i class="fa-solid fa-chart-line w-6 text-lg"></i> <span class="hidden md:block">1. Live Leaderboard</span>
-            </button>
-            <button onclick="navigate('search')" id="nav-search" class="nav-item flex items-center px-6 py-3 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
-                <i class="fa-solid fa-magnifying-glass w-6 text-lg"></i> <span class="hidden md:block">2. Universal Search</span>
-            </button>
-            <button onclick="navigate('stats')" id="nav-stats" class="nav-item flex items-center px-6 py-3 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
-                <i class="fa-solid fa-chart-pie w-6 text-lg"></i> <span class="hidden md:block">3. Statistics Engine</span>
-            </button>
-            <button onclick="navigate('certificates')" id="nav-certificates" class="nav-item flex items-center px-6 py-3 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
-                <i class="fa-solid fa-file-contract w-6 text-lg"></i> <span class="hidden md:block">4. Notice & Certificates</span>
-            </button>
-        </nav>
+        <div class="flex-1 overflow-y-auto custom-scrollbar py-4">
+            <!-- PUBLIC PORTAL NAVIGATION -->
+            <div class="py-2 px-6 text-[10px] font-extrabold tracking-wider text-gray-500 uppercase hidden md:block">Public Portal</div>
+            <nav class="flex-col gap-1">
+                <button onclick="navigate('dashboard')" id="nav-dashboard" class="nav-item active flex items-center px-6 py-3 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
+                    <i class="fa-solid fa-chart-line w-6 text-lg"></i> <span class="hidden md:block">1. Live Leaderboard</span>
+                </button>
+                <button onclick="navigate('search')" id="nav-search" class="nav-item flex items-center px-6 py-3 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
+                    <i class="fa-solid fa-magnifying-glass w-6 text-lg"></i> <span class="hidden md:block">2. Universal Search</span>
+                </button>
+                <button onclick="navigate('stats')" id="nav-stats" class="nav-item flex items-center px-6 py-3 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
+                    <i class="fa-solid fa-chart-pie w-6 text-lg"></i> <span class="hidden md:block">3. Statistics Engine</span>
+                </button>
+                <button onclick="navigate('certificates')" id="nav-certificates" class="nav-item flex items-center px-6 py-3 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
+                    <i class="fa-solid fa-file-contract w-6 text-lg"></i> <span class="hidden md:block">4. Notice & Certificates</span>
+                </button>
+                <button onclick="navigate('calendar')" id="nav-calendar" class="nav-item flex items-center px-6 py-3 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
+                    <i class="fa-solid fa-calendar-days w-6 text-lg"></i> <span class="hidden md:block">5. Rules & Schedule</span>
+                </button>
+            </nav>
 
-        <!-- Navigation Category 2: Restricted Admin Views -->
-        <div class="py-2 px-6 text-[10px] font-extrabold tracking-wider text-amber-500/80 uppercase hidden md:flex items-center justify-between mt-4">
-            <span>Admin Portal</span>
-            <i class="fa-solid fa-lock text-[10px]" id="adminBadgeIcon"></i>
+            <!-- RESTRICTED ADMIN PORTAL NAVIGATION (HIDDEN BY DEFAULT) -->
+            <div id="adminNavGroup" class="hidden mt-6">
+                <div class="py-2 px-6 text-[10px] font-extrabold tracking-wider text-amber-500/90 uppercase hidden md:flex items-center justify-between">
+                    <span>Admin Controls</span>
+                    <i class="fa-solid fa-unlock text-[10px] text-amber-400"></i>
+                </div>
+                <nav class="flex-col gap-1">
+                    <button onclick="navigate('events')" id="nav-events" class="nav-item flex items-center px-6 py-3 text-amber-300 hover:text-white w-full text-left font-semibold text-sm">
+                        <i class="fa-solid fa-calendar-plus w-6 text-lg"></i> <span class="hidden md:block">Add Competition</span>
+                    </button>
+                    <button onclick="navigate('students')" id="nav-students" class="nav-item flex items-center px-6 py-3 text-amber-300 hover:text-white w-full text-left font-semibold text-sm">
+                        <i class="fa-solid fa-user-plus w-6 text-lg"></i> <span class="hidden md:block">Register Student</span>
+                    </button>
+                    <button onclick="navigate('results')" id="nav-results" class="nav-item flex items-center px-6 py-3 text-amber-300 hover:text-white w-full text-left font-semibold text-sm">
+                        <i class="fa-solid fa-award w-6 text-lg"></i> <span class="hidden md:block">Enter Results</span>
+                    </button>
+                </nav>
+            </div>
         </div>
-        <nav class="flex-col gap-1">
-            <button onclick="navigate('events')" id="nav-events" class="nav-item flex items-center px-6 py-3 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
-                <i class="fa-solid fa-calendar-plus w-6 text-lg"></i> 
-                <span class="hidden md:block flex-1">5. Add Competition</span>
-                <i class="fa-solid fa-lock text-xs text-gray-500 admin-lock-icon hidden md:inline"></i>
-            </button>
-            <button onclick="navigate('students')" id="nav-students" class="nav-item flex items-center px-6 py-3 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
-                <i class="fa-solid fa-user-plus w-6 text-lg"></i> 
-                <span class="hidden md:block flex-1">6. Register Student</span>
-                <i class="fa-solid fa-lock text-xs text-gray-500 admin-lock-icon hidden md:inline"></i>
-            </button>
-            <button onclick="navigate('results')" id="nav-results" class="nav-item flex items-center px-6 py-3 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
-                <i class="fa-solid fa-award w-6 text-lg"></i> 
-                <span class="hidden md:block flex-1">7. Enter Results</span>
-                <i class="fa-solid fa-lock text-xs text-gray-500 admin-lock-icon hidden md:inline"></i>
-            </button>
-        </nav>
 
-        <!-- Admin Auth Toggle Button & Cloud Status -->
-        <div class="mt-auto p-4 border-t border-white/10 space-y-3">
+        <!-- Admin Auth Toggle & Status -->
+        <div class="p-4 border-t border-white/10 space-y-3">
             <button id="adminAuthBtn" onclick="toggleAdminAuth()" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20">
                 <i class="fa-solid fa-shield-halved"></i> <span class="hidden md:inline" id="adminBtnText">Admin Login</span>
             </button>
 
             <div id="syncStatus" class="px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center justify-center md:justify-start gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> <span class="hidden md:block">Cloud Sync Active</span>
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> <span class="hidden md:block">Live Sync Active</span>
             </div>
         </div>
     </aside>
@@ -116,11 +120,11 @@
             <section id="view-dashboard" class="view-section space-y-8">
                 <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/10 pb-4">
                     <div>
-                        <h2 class="text-3xl font-extrabold text-white">🏆 Live House Championship Standings</h2>
-                        <p class="text-gray-400 text-sm mt-1">Real-time point updates across Red, Blue, Green, and Yellow Houses.</p>
+                        <h2 class="text-3xl font-extrabold text-white">🏆 Live House Standings</h2>
+                        <p class="text-gray-400 text-sm mt-1">Real-time point totals across Red, Blue, Green, and Yellow Houses.</p>
                     </div>
                     <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-semibold transition flex items-center gap-2">
-                        <i class="fa-solid fa-print"></i> Print Official Standings
+                        <i class="fa-solid fa-print"></i> Print Standings
                     </button>
                 </header>
 
@@ -136,7 +140,7 @@
             <section id="view-search" class="view-section space-y-8 hidden">
                 <header class="border-b border-white/10 pb-4">
                     <h2 class="text-3xl font-extrabold text-white">Universal Search Engine</h2>
-                    <p class="text-gray-400 text-sm mt-1">Cross-reference records by Student, House, Competition, or Scheduled Date.</p>
+                    <p class="text-gray-400 text-sm mt-1">Search records by Student, House, Competition, or Event Date.</p>
                 </header>
 
                 <div class="flex flex-wrap gap-3">
@@ -163,17 +167,17 @@
             <!-- PUBLIC VIEW 3: STATISTICS ENGINE -->
             <section id="view-stats" class="view-section space-y-8 hidden">
                 <header class="border-b border-white/10 pb-4">
-                    <h2 class="text-3xl font-extrabold text-white">Automated Statistics Engine</h2>
-                    <p class="text-gray-400 text-sm mt-1">Live analytics calculating performance, wins, and participation metrics.</p>
+                    <h2 class="text-3xl font-extrabold text-white">Championship Analytics Engine</h2>
+                    <p class="text-gray-400 text-sm mt-1">Real-time performance distribution and participation stats.</p>
                 </header>
 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div class="glass p-6 rounded-2xl border-t-4 border-t-indigo-500 flex flex-col justify-between">
                         <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Most Successful House</p>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Leading House</p>
                             <h4 id="statBestHouse" class="text-2xl font-black mt-2 text-indigo-400">Loading...</h4>
                         </div>
-                        <p class="text-xs text-gray-500 mt-4">Calculated by total cumulative points.</p>
+                        <p class="text-xs text-gray-500 mt-4">Highest cumulative score.</p>
                     </div>
 
                     <div class="glass p-6 rounded-2xl border-t-4 border-t-emerald-500 flex flex-col justify-between">
@@ -181,20 +185,20 @@
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Event Victories</p>
                             <h4 id="statTotalWins" class="text-2xl font-black mt-2 text-emerald-400">0 Victories</h4>
                         </div>
-                        <p class="text-xs text-gray-500 mt-4">1st place finishes across events.</p>
+                        <p class="text-xs text-gray-500 mt-4">1st place finishes.</p>
                     </div>
 
                     <div class="glass p-6 rounded-2xl border-t-4 border-t-amber-500 flex flex-col justify-between">
                         <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Student Registrations</p>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Student Enrolled</p>
                             <h4 id="statTotalStudents" class="text-2xl font-black mt-2 text-amber-400">0 Enrolled</h4>
                         </div>
-                        <p class="text-xs text-gray-500 mt-4">Total active roster size.</p>
+                        <p class="text-xs text-gray-500 mt-4">Active student entries.</p>
                     </div>
 
                     <div class="glass p-6 rounded-2xl border-t-4 border-t-purple-500 flex flex-col justify-between">
                         <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Events Completed</p>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Events Scheduled</p>
                             <h4 id="statTotalEvents" class="text-2xl font-black mt-2 text-purple-400">0 Events</h4>
                         </div>
                         <p class="text-xs text-gray-500 mt-4">Published competitions.</p>
@@ -213,7 +217,7 @@
                 </div>
 
                 <div class="glass p-6 rounded-2xl border border-white/10">
-                    <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-table"></i> Event-Wise Points Tally Matrix</h3>
+                    <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-table"></i> Event Points Tally Matrix</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm">
                             <thead class="text-gray-400 border-b border-white/10">
@@ -237,8 +241,8 @@
             <section id="view-certificates" class="view-section space-y-8 hidden">
                 <header class="border-b border-white/10 pb-4 flex justify-between items-center">
                     <div>
-                        <h2 class="text-3xl font-extrabold text-white">Official Notice & Certificate Hub</h2>
-                        <p class="text-gray-400 text-sm mt-1">Generate official announcements and printable certificates of achievement.</p>
+                        <h2 class="text-3xl font-extrabold text-white">Notice & Certificate Hub</h2>
+                        <p class="text-gray-400 text-sm mt-1">Generate official announcements and printable achievement certificates.</p>
                     </div>
                     <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-semibold transition flex items-center gap-2">
                         <i class="fa-solid fa-print"></i> Print Certificate
@@ -248,7 +252,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="glass p-6 rounded-2xl border border-white/10 space-y-4">
                         <h3 class="text-lg font-bold text-indigo-400 flex items-center gap-2"><i class="fa-solid fa-bullhorn"></i> Auto-Generated School Notice</h3>
-                        <p class="text-xs text-gray-400">Select a completed competition to format an official notice:</p>
+                        <p class="text-xs text-gray-400">Select a completed competition result:</p>
                         <select id="noticeResultSelect" onchange="renderNoticePreview()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500"></select>
                         
                         <div id="noticePreviewBox" class="p-6 bg-white/5 rounded-xl border border-white/10 text-sm font-mono text-gray-200 leading-relaxed whitespace-pre-line"></div>
@@ -257,16 +261,16 @@
                     <div class="glass p-6 rounded-2xl border border-amber-500/30 flex flex-col justify-between space-y-4">
                         <div>
                             <h3 class="text-lg font-bold text-amber-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-certificate"></i> Student Certificate Generator</h3>
-                            <p class="text-xs text-gray-400 mb-4">Select student victory to generate a certificate:</p>
+                            <p class="text-xs text-gray-400 mb-4">Select an enrolled student:</p>
                             <select id="certStudentSelect" onchange="renderCertificatePreview()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-amber-500 mb-4"></select>
                         </div>
 
                         <div id="certificateContainer" class="p-8 bg-gradient-to-b from-amber-500/10 to-black rounded-xl border-2 border-amber-500/50 text-center space-y-4 print-area">
                             <span class="text-xs font-bold text-amber-400 tracking-widest uppercase">Official School Championship</span>
                             <h2 class="text-2xl font-extrabold text-white tracking-wide">CERTIFICATE OF ACHIEVEMENT</h2>
-                            <p class="text-xs text-gray-400">This is proudly awarded to</p>
+                            <p class="text-xs text-gray-400">This certificate is proudly presented to</p>
                             <h3 id="certStudentName" class="text-xl font-black text-amber-300 underline decoration-amber-500">Student Name</h3>
-                            <p class="text-xs text-gray-300">of <b id="certStudentHouse" class="text-white">House</b> for participating in <b id="certEventName" class="text-white">Event</b>.</p>
+                            <p class="text-xs text-gray-300">representing <b id="certStudentHouse" class="text-white">House</b> in <b id="certEventName" class="text-white">Event Name</b>.</p>
                             <div class="pt-6 border-t border-white/10 flex justify-between items-end text-[10px] text-gray-500">
                                 <span>Date: <b id="certDate" class="text-gray-300">Today</b></span>
                                 <span>Authorized Signature: ______________</span>
@@ -276,16 +280,43 @@
                 </div>
             </section>
 
+            <!-- PUBLIC VIEW 5: RULES & EVENT CALENDAR -->
+            <section id="view-calendar" class="view-section space-y-8 hidden">
+                <header class="border-b border-white/10 pb-4">
+                    <h2 class="text-3xl font-extrabold text-white">Event Schedule & Rules</h2>
+                    <p class="text-gray-400 text-sm mt-1">Championship point guidelines and upcoming event schedule.</p>
+                </header>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="glass p-6 rounded-2xl border border-indigo-500/30 space-y-4">
+                        <h3 class="text-lg font-bold text-indigo-400 flex items-center gap-2"><i class="fa-solid fa-scale-balanced"></i> Points Scoring Rules</h3>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            Every event carries a fixed <b class="text-indigo-300">Max Pool Score</b>. The total pool points are divided among all four houses based on their podium finish:
+                        </p>
+                        <div class="space-y-2 text-xs font-semibold">
+                            <div class="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex justify-between"><span>🥇 1st Place (Winner):</span> <b>40% of Pool</b></div>
+                            <div class="p-2.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 flex justify-between"><span>🥈 2nd Place:</span> <b>30% of Pool</b></div>
+                            <div class="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 flex justify-between"><span>🥉 3rd Place:</span> <b>20% of Pool</b></div>
+                            <div class="p-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 flex justify-between"><span>🏅 4th Place:</span> <b>10% of Pool</b></div>
+                        </div>
+                        <p class="text-[11px] text-gray-500 italic">Example: A 50-point event awards 20, 15, 10, and 5 points respectively (Sum = 50).</p>
+                    </div>
+
+                    <div class="lg:col-span-2 glass p-6 rounded-2xl border border-white/10">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-calendar-days text-indigo-400"></i> Event Schedule & Status Timeline</h3>
+                        <div id="calendarEventsList" class="space-y-3"></div>
+                    </div>
+                </div>
+            </section>
+
             <!-- RESTRICTED ADMIN VIEW 1: ADD COMPETITION -->
             <section id="view-events" class="view-section space-y-8 hidden">
-                <header class="border-b border-amber-500/30 pb-4 flex justify-between items-center">
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="px-2.5 py-0.5 rounded text-[10px] font-black uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30">Admin Restricted</span>
-                            <h2 class="text-3xl font-extrabold text-white">1. Competition Management</h2>
-                        </div>
-                        <p class="text-gray-400 text-sm mt-1">Schedule new inter-house events and set maximum pool points.</p>
+                <header class="border-b border-amber-500/30 pb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded text-[10px] font-black uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30">Admin Restricted</span>
+                        <h2 class="text-3xl font-extrabold text-white">Add Competition</h2>
                     </div>
+                    <p class="text-gray-400 text-sm mt-1">Schedule new inter-house events and set maximum pool points.</p>
                 </header>
                 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -302,7 +333,6 @@
                                     <option value="Sports">Sports</option>
                                     <option value="Academics">Academics</option>
                                     <option value="Cultural">Cultural / Arts</option>
-                                    <option value="Esports">Esports & Gaming</option>
                                 </select>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
@@ -311,11 +341,10 @@
                                     <input type="date" id="compDate" required onclick="this.showPicker()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500 [color-scheme:dark] cursor-pointer">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-400 mb-1">Max Pool Points (Sum)</label>
+                                    <label class="block text-xs font-semibold text-gray-400 mb-1">Max Pool Points</label>
                                     <input type="number" id="compMaxPoints" value="50" required min="10" step="5" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
                                 </div>
                             </div>
-                            <p class="text-[11px] text-gray-500 italic">Total max points will be distributed among all 4 houses (1st to 4th rank).</p>
                             <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold transition mt-2">Publish Competition</button>
                         </form>
                     </div>
@@ -334,14 +363,14 @@
                 </div>
             </section>
 
-            <!-- RESTRICTED ADMIN VIEW 2: REGISTER PARTICIPANTS -->
+            <!-- RESTRICTED ADMIN VIEW 2: REGISTER STUDENT -->
             <section id="view-students" class="view-section space-y-8 hidden">
                 <header class="border-b border-amber-500/30 pb-4">
                     <div class="flex items-center gap-2">
                         <span class="px-2.5 py-0.5 rounded text-[10px] font-black uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30">Admin Restricted</span>
-                        <h2 class="text-3xl font-extrabold text-white">2. Register Participants</h2>
+                        <h2 class="text-3xl font-extrabold text-white">Register Student</h2>
                     </div>
-                    <p class="text-gray-400 text-sm mt-1">Enroll students into competitions and assign them to their house.</p>
+                    <p class="text-gray-400 text-sm mt-1">Enroll participants into competitions and assign house allegiance.</p>
                 </header>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -375,14 +404,14 @@
                                 <label class="block text-xs font-semibold text-gray-400 mb-1">Target Competition</label>
                                 <select id="studCompetition" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500"></select>
                             </div>
-                            <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold transition mt-2">Register Participant</button>
+                            <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold transition mt-2">Register Student</button>
                         </form>
                     </div>
 
                     <div class="lg:col-span-2 glass p-6 rounded-2xl border border-white/10 flex flex-col">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-                            <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-users"></i> Registered Participant Roster</h3>
-                            <input type="text" id="studentRosterFilter" oninput="renderStudents()" placeholder="Filter student roster..." class="w-full sm:w-64 bg-black border border-white/15 rounded-lg py-2 px-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-users"></i> Student Roster</h3>
+                            <input type="text" id="studentRosterFilter" oninput="renderStudents()" placeholder="Filter roster..." class="w-full sm:w-64 bg-black border border-white/15 rounded-lg py-2 px-3 text-sm text-white focus:outline-none focus:border-emerald-500">
                         </div>
                         <div class="overflow-y-auto flex-1 max-h-[500px] pr-2 custom-scrollbar">
                             <div id="studentListGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
@@ -391,24 +420,24 @@
                 </div>
             </section>
 
-            <!-- RESTRICTED ADMIN VIEW 3: REVAMPED MULTI-STEP PODIUM RESULT ENTRY -->
+            <!-- RESTRICTED ADMIN VIEW 3: INTERACTIVE PODIUM FINISH RESULT ENTRY -->
             <section id="view-results" class="view-section space-y-8 hidden">
                 <header class="border-b border-amber-500/30 pb-4">
                     <div class="flex items-center gap-2">
                         <span class="px-2.5 py-0.5 rounded text-[10px] font-black uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30">Admin Restricted</span>
-                        <h2 class="text-3xl font-extrabold text-white">3. Declare Competition Podium Finish</h2>
+                        <h2 class="text-3xl font-extrabold text-white">Enter Competition Results</h2>
                     </div>
-                    <p class="text-gray-400 text-sm mt-1">Select house ranks in sequence. Points are calculated based on max pool score.</p>
+                    <p class="text-gray-400 text-sm mt-1">Select houses in sequence. Points are calculated automatically based on event max pool score.</p>
                 </header>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Dynamic Interactive Podium Form -->
-                    <div class="glass p-6 rounded-2xl h-fit border border-amber-500/30 space-y-5">
-                        <h3 class="text-lg font-bold text-amber-400 flex items-center gap-2"><i class="fa-solid fa-trophy"></i> Interactive Podium Selection</h3>
+                    <div class="glass p-6 rounded-2xl h-fit border border-amber-500/30 space-y-6">
+                        <h3 class="text-lg font-bold text-amber-400 flex items-center gap-2"><i class="fa-solid fa-trophy"></i> Declare Podium Finish</h3>
                         
                         <div>
-                            <label class="block text-xs font-semibold text-gray-400 mb-1">1. Select Competition</label>
-                            <select id="resCompName" onchange="handlePodiumCompChange()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-amber-500"></select>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">1. Select Event</label>
+                            <select id="resCompName" onchange="resetPodiumSelection()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-amber-500"></select>
                         </div>
 
                         <!-- Active Event Details Banner -->
@@ -417,54 +446,41 @@
                             <p class="text-gray-400">Scheduled Date: <b id="badgeDate" class="text-white">N/A</b></p>
                         </div>
 
-                        <!-- Dynamic House Selection Cascade -->
-                        <div class="space-y-3 pt-2 border-t border-white/10">
-                            <div>
-                                <label class="block text-xs font-bold text-emerald-400 mb-1">🥇 1st Place (Winner)</label>
-                                <select id="podium1st" onchange="updatePodiumCascade()" class="w-full bg-black border border-emerald-500/40 rounded-lg p-2.5 text-sm text-white focus:outline-none"></select>
+                        <!-- Step-By-Step Interactive Selection Cards -->
+                        <div class="space-y-4 pt-2 border-t border-white/10">
+                            <div class="flex justify-between items-center">
+                                <span id="podiumStepTitle" class="text-xs font-bold text-amber-400 uppercase tracking-wider">Step 1: Select 🥇 1st Place Winner</span>
+                                <button onclick="resetPodiumSelection()" class="text-[11px] text-gray-400 hover:text-white underline">Reset</button>
                             </div>
 
-                            <div>
-                                <label class="block text-xs font-bold text-blue-400 mb-1">🥈 2nd Place</label>
-                                <select id="podium2nd" onchange="updatePodiumCascade()" class="w-full bg-black border border-blue-500/40 rounded-lg p-2.5 text-sm text-white focus:outline-none"></select>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-amber-400 mb-1">🥉 3rd Place</label>
-                                <select id="podium3rd" onchange="updatePodiumCascade()" class="w-full bg-black border border-amber-500/40 rounded-lg p-2.5 text-sm text-white focus:outline-none"></select>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-bold text-red-400 mb-1">🏅 4th Place (Auto-Detected)</label>
-                                <input type="text" id="podium4th" readonly class="w-full bg-white/5 border border-red-500/40 rounded-lg p-2.5 text-sm font-bold text-red-400 cursor-not-allowed">
-                            </div>
+                            <div id="podiumInteractiveCards" class="grid grid-cols-2 gap-3"></div>
                         </div>
 
                         <!-- Live Point Breakdown Matrix Preview -->
-                        <div class="p-3 bg-white/5 border border-white/10 rounded-xl space-y-1.5 text-xs">
+                        <div id="podiumSummaryBox" class="p-4 bg-white/5 border border-white/10 rounded-xl space-y-2 text-xs">
                             <span class="font-bold text-gray-300 uppercase tracking-wider block border-b border-white/10 pb-1">Automated Point Breakdown:</span>
-                            <div class="flex justify-between text-emerald-400"><span>1st Place:</span> <b id="ptsPreview1">0 Pts</b></div>
-                            <div class="flex justify-between text-blue-400"><span>2nd Place:</span> <b id="ptsPreview2">0 Pts</b></div>
-                            <div class="flex justify-between text-amber-400"><span>3rd Place:</span> <b id="ptsPreview3">0 Pts</b></div>
-                            <div class="flex justify-between text-red-400"><span>4th Place:</span> <b id="ptsPreview4">0 Pts</b></div>
-                            <div class="flex justify-between text-gray-400 pt-1 border-t border-white/10 font-bold"><span>Total Distributed:</span> <b id="ptsPreviewTotal" class="text-white">0 / 0 Pts</b></div>
+                            <div id="podiumBreakdownList" class="space-y-1"></div>
+                            <div class="flex justify-between text-gray-300 pt-2 border-t border-white/10 font-bold">
+                                <span>Total Pool Distributed:</span> 
+                                <b id="ptsPreviewTotal" class="text-amber-400">0 / 0 Pts</b>
+                            </div>
                         </div>
 
-                        <button onclick="submitPodiumResult()" class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition">Publish Official Podium Finish</button>
+                        <button id="btnSubmitResults" onclick="submitPodiumResult()" disabled class="w-full py-3 bg-gray-800 text-gray-500 rounded-lg font-bold transition cursor-not-allowed">Complete All Ranks First</button>
                     </div>
 
-                    <!-- Enhanced Audit Log with Scheduled & Submitted Dates -->
+                    <!-- Audit Log with Scheduled & Submitted Dates -->
                     <div class="lg:col-span-2 glass p-6 rounded-2xl border border-white/10">
-                        <h3 class="text-lg font-bold mb-4 text-white flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left"></i> Real-Time Results Audit Log</h3>
+                        <h3 class="text-lg font-bold mb-4 text-white flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left"></i> Results Audit Log</h3>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-sm">
                                 <thead class="text-gray-400 border-b border-white/10">
                                     <tr>
                                         <th class="pb-3">Competition</th>
-                                        <th class="pb-3">Event Date</th>
-                                        <th class="pb-3">🥇 1st Place</th>
+                                        <th class="pb-3">Scheduled Date</th>
+                                        <th class="pb-3">🥇 Winner</th>
                                         <th class="pb-3">Full Podium Breakdown</th>
-                                        <th class="pb-3 text-right">Total Pool</th>
+                                        <th class="pb-3 text-right">Pool Pts</th>
                                     </tr>
                                 </thead>
                                 <tbody id="resultsTableBody" class="divide-y divide-white/5"></tbody>
@@ -495,32 +511,78 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Explicit House Styling Rules
+        // Styling Color Maps
         const houseColorMap = {
-            'Red': { hex: '#ef4444', text: 'text-red-400', border: 'border-red-500/30', bg: 'bg-red-500/10', emoji: '🔴' },
-            'Blue': { hex: '#3b82f6', text: 'text-blue-400', border: 'border-blue-500/30', bg: 'bg-blue-500/10', emoji: '🔵' },
-            'Green': { hex: '#10b981', text: 'text-emerald-400', border: 'border-emerald-500/30', bg: 'bg-emerald-500/10', emoji: '🟢' },
-            'Yellow': { hex: '#f59e0b', text: 'text-amber-400', border: 'border-amber-500/30', bg: 'bg-amber-500/10', emoji: '🟡' }
+            'Red': { hex: '#ef4444', text: 'text-red-400', border: 'border-red-500/40', bg: 'bg-red-500/10', emoji: '🔴' },
+            'Blue': { hex: '#3b82f6', text: 'text-blue-400', border: 'border-blue-500/40', bg: 'bg-blue-500/10', emoji: '🔵' },
+            'Green': { hex: '#10b981', text: 'text-emerald-400', border: 'border-emerald-500/40', bg: 'bg-emerald-500/10', emoji: '🟢' },
+            'Yellow': { hex: '#f59e0b', text: 'text-amber-400', border: 'border-amber-500/40', bg: 'bg-amber-500/10', emoji: '🟡' }
         };
 
         const ALL_HOUSES = ['Red', 'Blue', 'Green', 'Yellow'];
 
-        // App State
-        let isAdminLoggedIn = false;
-        let appData = {
+        // Fallback Seed State
+        const defaultSeedData = {
             houses: {
-                Red: { name: "Red", emoji: "🔴", points: 0, wins: 0 },
-                Blue: { name: "Blue", emoji: "🔵", points: 0, wins: 0 },
-                Green: { name: "Green", emoji: "🟢", points: 0, wins: 0 },
-                Yellow: { name: "Yellow", emoji: "🟡", points: 0, wins: 0 }
+                Red: { name: "Red", emoji: "🔴", points: 140, wins: 2 },
+                Blue: { name: "Blue", emoji: "🔵", points: 110, wins: 1 },
+                Green: { name: "Green", emoji: "🟢", points: 90, wins: 1 },
+                Yellow: { name: "Yellow", emoji: "🟡", points: 60, wins: 0 }
             },
-            competitions: [],
-            students: [],
-            results: []
+            competitions: [
+                { name: "Inter-House Cricket Tournament", category: "Sports", date: "2026-03-15", maxPoints: 100 },
+                { name: "Annual Science & Tech Quiz", category: "Academics", date: "2026-03-20", maxPoints: 50 },
+                { name: "Creative Arts & Drama", category: "Cultural", date: "2026-03-25", maxPoints: 60 },
+                { name: "Inter-House Football League", category: "Sports", date: "2026-04-05", maxPoints: 80 }
+            ],
+            students: [
+                { name: "Aarav Sharma", roll: "101", class: "10-A", house: "Red", competition: "Inter-House Cricket Tournament" },
+                { name: "Rohan Verma", roll: "102", class: "10-B", house: "Blue", competition: "Inter-House Cricket Tournament" },
+                { name: "Priya Patel", roll: "103", class: "10-A", house: "Green", competition: "Annual Science & Tech Quiz" },
+                { name: "Ananya Iyer", roll: "104", class: "11-C", house: "Yellow", competition: "Creative Arts & Drama" }
+            ],
+            results: [
+                {
+                    event: "Inter-House Cricket Tournament",
+                    eventDate: "2026-03-15",
+                    submitDate: "15/03/2026",
+                    maxPoints: 100,
+                    p1: "Red", pts1: 40,
+                    p2: "Blue", pts2: 30,
+                    p3: "Green", pts3: 20,
+                    p4: "Yellow", pts4: 10
+                },
+                {
+                    event: "Annual Science & Tech Quiz",
+                    eventDate: "2026-03-20",
+                    submitDate: "20/03/2026",
+                    maxPoints: 50,
+                    p1: "Blue", pts1: 20,
+                    p2: "Red", pts2: 15,
+                    p3: "Green", pts3: 10,
+                    p4: "Yellow", pts4: 5
+                },
+                {
+                    event: "Creative Arts & Drama",
+                    eventDate: "2026-03-25",
+                    submitDate: "25/03/2026",
+                    maxPoints: 60,
+                    p1: "Green", pts1: 24,
+                    p2: "Red", pts2: 18,
+                    p3: "Yellow", pts3: 12,
+                    p4: "Blue", pts4: 6
+                }
+            ]
         };
 
+        // App State
+        let isAdminLoggedIn = false;
+        let appData = defaultSeedData;
         let currentSearchMode = 'student';
         let chartWins = null, chartPart = null;
+
+        // Podium Finish Selection Tracking
+        let podiumSelection = { p1: null, p2: null, p3: null, p4: null };
 
         // Navigation Engine
         window.navigate = function(viewId) {
@@ -528,32 +590,36 @@
             if (adminViews.includes(viewId) && !isAdminLoggedIn) {
                 Swal.fire({
                     title: 'Admin Access Required',
-                    text: 'Please log in with administrator credentials to view or edit this portal section.',
+                    text: 'Please log in with administrator credentials.',
                     icon: 'lock',
                     background: '#111',
                     color: '#fff',
                     showCancelButton: true,
                     confirmButtonText: 'Login Now',
                     confirmButtonColor: '#4f46e5'
-                }).then((res) => {
-                    if (res.isConfirmed) promptAdminLogin();
-                });
+                }).then((res) => { if (res.isConfirmed) promptAdminLogin(); });
                 return;
             }
 
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById(`view-${viewId}`).classList.remove('hidden');
-            document.getElementById(`nav-${viewId}`).classList.add('active');
+            
+            const viewTarget = document.getElementById(`view-${viewId}`);
+            const navTarget = document.getElementById(`nav-${viewId}`);
+            
+            if (viewTarget) viewTarget.classList.remove('hidden');
+            if (navTarget) navTarget.classList.add('active');
+
+            if (viewId === 'search') setSearchMode(currentSearchMode);
             renderAll();
         };
 
-        // ADMIN AUTHENTICATION CONTROLLER
+        // ADMIN AUTHENTICATION
         window.toggleAdminAuth = function() {
             if (isAdminLoggedIn) {
                 isAdminLoggedIn = false;
                 updateAdminUI();
-                Swal.fire({ title: 'Logged Out', text: 'Returned to public view mode.', icon: 'info', background: '#111', color: '#fff', timer: 1500 });
+                Swal.fire({ title: 'Logged Out', text: 'Returned to public view.', icon: 'info', background: '#111', color: '#fff', timer: 1500 });
                 navigate('dashboard');
             } else {
                 promptAdminLogin();
@@ -595,33 +661,33 @@
         function updateAdminUI() {
             const btnText = document.getElementById('adminBtnText');
             const authBtn = document.getElementById('adminAuthBtn');
-            const lockIcons = document.querySelectorAll('.admin-lock-icon');
-            const adminBadgeIcon = document.getElementById('adminBadgeIcon');
+            const adminGroup = document.getElementById('adminNavGroup');
 
             if (isAdminLoggedIn) {
                 btnText.innerText = "Admin Logout";
                 authBtn.classList.replace('from-indigo-600', 'from-red-600');
                 authBtn.classList.replace('to-purple-600', 'to-amber-600');
-                lockIcons.forEach(i => i.classList.replace('fa-lock', 'fa-unlock'));
-                if(adminBadgeIcon) adminBadgeIcon.className = "fa-solid fa-unlock text-[10px] text-emerald-400";
+                if(adminGroup) adminGroup.classList.remove('hidden');
             } else {
                 btnText.innerText = "Admin Login";
                 authBtn.classList.replace('from-red-600', 'from-indigo-600');
                 authBtn.classList.replace('to-amber-600', 'to-purple-600');
-                lockIcons.forEach(i => i.classList.replace('fa-unlock', 'fa-lock'));
-                if(adminBadgeIcon) adminBadgeIcon.className = "fa-solid fa-lock text-[10px] text-amber-500";
+                if(adminGroup) adminGroup.classList.add('hidden');
             }
         }
 
-        // Real-Time Cloud Synchronization
+        // Firebase Cloud Sync
         const docRef = doc(db, "portalData", "mainState");
         onSnapshot(docRef, (docSnap) => {
             if (docSnap.exists()) {
                 appData = docSnap.data();
-                renderAll();
             } else {
                 setDoc(docRef, appData);
             }
+            renderAll();
+        }, (error) => {
+            console.warn("Using offline seed data due to network:", error);
+            renderAll();
         });
 
         async function saveToCloud(msg) {
@@ -633,21 +699,22 @@
             }
         }
 
-        // --- PUBLIC VIEW PIPELINES ---
+        // --- MASTER RENDERER ---
         function renderAll() {
             renderLeaderboard();
             renderDropdowns();
             renderTables();
             renderStudents();
-            renderSearchConsole();
+            renderCalendarAndRules();
             renderStats();
             renderCertificatesHub();
-            handlePodiumCompChange();
+            resetPodiumSelection();
         }
 
+        // PUBLIC VIEW 1: LEADERBOARD
         function renderLeaderboard() {
             const grid = document.getElementById('leaderboardGrid');
-            const sorted = Object.entries(appData.houses).sort((a, b) => b[1].points - a[1].points);
+            const sorted = Object.entries(appData.houses || {}).sort((a, b) => b[1].points - a[1].points);
             const topPoints = sorted.length ? sorted[0][1].points : 0;
 
             grid.innerHTML = sorted.map(([key, h], i) => {
@@ -665,39 +732,66 @@
                             <h3 class="text-2xl font-black ${style.text} mt-2">${style.emoji} ${key} House</h3>
                             <div class="flex items-end gap-2 mt-4">
                                 <span class="text-5xl font-black text-white tracking-tight">${h.points}</span>
-                                <span class="text-gray-400 font-bold mb-1">points</span>
+                                <span class="text-gray-400 font-bold mb-1">pts</span>
                             </div>
                         </div>
                         <div class="mt-6 pt-4 border-t border-white/10 flex justify-between text-xs font-semibold">
-                            <span class="text-gray-400">1st Place Victories:</span>
+                            <span class="text-gray-400">1st Place Wins:</span>
                             <span class="text-white font-bold">${h.wins} 🏆</span>
                         </div>
                     </div>
                 `;
             }).join('');
 
-            document.getElementById('dashboardRecentHighlights').innerHTML = appData.results.slice().reverse().slice(0, 4).map(r => {
+            const highlightsContainer = document.getElementById('dashboardRecentHighlights');
+            const recentResults = (appData.results || []).slice().reverse().slice(0, 4);
+
+            highlightsContainer.innerHTML = recentResults.map(r => {
                 const winnerStyle = houseColorMap[r.p1] || houseColorMap['Red'];
                 return `
                     <div class="py-3 flex items-center justify-between">
                         <div>
                             <p class="text-sm font-bold text-white">${r.event}</p>
-                            <p class="text-xs text-gray-400">Scheduled: ${r.eventDate} | Winner: <span class="${winnerStyle.text} font-bold">${winnerStyle.emoji} ${r.p1} House</span></p>
+                            <p class="text-xs text-gray-400">Date Held: <b class="text-gray-200">${r.eventDate || 'N/A'}</b> | Winner: <span class="${winnerStyle.text} font-bold">${winnerStyle.emoji} ${r.p1} House</span></p>
                         </div>
-                        <span class="text-xs font-bold px-2.5 py-1 rounded bg-amber-500/20 text-amber-400">Pool: ${r.maxPoints} Pts</span>
+                        <span class="text-xs font-bold px-2.5 py-1 rounded bg-amber-500/20 text-amber-400">Pool: ${r.maxPoints || 50} Pts</span>
                     </div>
                 `;
-            }).join('') || `<p class="text-sm text-gray-500 py-2">No championship events completed yet.</p>`;
+            }).join('') || `<p class="text-sm text-gray-500 py-2">No completed events recorded.</p>`;
         }
 
-        // --- ADMIN TASK 1: ADD COMPETITION ---
+        // PUBLIC VIEW 5: CALENDAR & RULES
+        function renderCalendarAndRules() {
+            const list = document.getElementById('calendarEventsList');
+            if(!list) return;
+
+            list.innerHTML = (appData.competitions || []).map(c => {
+                const isCompleted = (appData.results || []).some(r => r.event === c.name);
+                return `
+                    <div class="p-4 rounded-xl border border-white/10 bg-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div>
+                            <h4 class="font-bold text-white text-base">${c.name}</h4>
+                            <p class="text-xs text-gray-400">Category: <b class="text-indigo-300">${c.category}</b> | Scheduled Date: <b class="text-gray-200">${c.date}</b></p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-bold px-2.5 py-1 rounded bg-amber-500/20 text-amber-400">Max Pool: ${c.maxPoints} Pts</span>
+                            <span class="text-xs font-bold px-2.5 py-1 rounded ${isCompleted ? 'bg-emerald-500/20 text-emerald-400' : 'bg-indigo-500/20 text-indigo-400'}">
+                                ${isCompleted ? 'Completed' : 'Upcoming'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('') || `<p class="text-xs text-gray-500">No events scheduled.</p>`;
+        }
+
+        // ADMIN TASK 1: ADD COMPETITION
         window.handleCompSubmit = (e) => {
             e.preventDefault();
             if(!isAdminLoggedIn) return;
 
             const name = document.getElementById('compName').value.trim();
-            if(appData.competitions.some(c => c.name.toLowerCase() === name.toLowerCase())) {
-                Swal.fire({ title: 'Duplicate Competition', text: 'A competition with this name already exists.', icon: 'warning', background: '#111', color: '#fff' });
+            if((appData.competitions || []).some(c => c.name.toLowerCase() === name.toLowerCase())) {
+                Swal.fire({ title: 'Duplicate Name', text: 'A competition with this name already exists.', icon: 'warning', background: '#111', color: '#fff' });
                 return;
             }
 
@@ -713,7 +807,7 @@
             document.getElementById('compMaxPoints').value = "50";
         };
 
-        // --- ADMIN TASK 2: REGISTER STUDENT ---
+        // ADMIN TASK 2: REGISTER STUDENT
         window.handleStudentSubmit = (e) => {
             e.preventDefault();
             if(!isAdminLoggedIn) return;
@@ -722,12 +816,12 @@
             const comp = document.getElementById('studCompetition').value;
 
             if(!comp) {
-                Swal.fire({ title: 'No Competition Selected', text: 'Please create a competition first.', icon: 'warning', background: '#111', color: '#fff' });
+                Swal.fire({ title: 'No Event Selected', text: 'Please create a competition first.', icon: 'warning', background: '#111', color: '#fff' });
                 return;
             }
 
-            if(appData.students.some(s => s.roll === roll && s.competition === comp)) {
-                Swal.fire({ title: 'Duplicate Student', text: `Student with Roll ${roll} is already registered for ${comp}.`, icon: 'error', background: '#111', color: '#fff' });
+            if((appData.students || []).some(s => s.roll === roll && s.competition === comp)) {
+                Swal.fire({ title: 'Already Enrolled', text: `Student with Roll ${roll} is already registered for ${comp}.`, icon: 'error', background: '#111', color: '#fff' });
                 return;
             }
 
@@ -739,11 +833,11 @@
                 competition: comp
             });
 
-            saveToCloud('Participant enrolled successfully!');
+            saveToCloud('Student participant registered!');
             e.target.reset();
         };
 
-        // --- ADMIN TASK 3: REVAMPED MULTI-STEP PODIUM & EXACT MATH SYSTEM ---
+        // ADMIN TASK 3: REVAMPED INTERACTIVE PODIUM ENTRY
         function calculatePointBreakdown(maxPts) {
             const p1 = Math.round(maxPts * 0.40);
             const p2 = Math.round(maxPts * 0.30);
@@ -752,87 +846,131 @@
             return { p1, p2, p3, p4 };
         }
 
-        window.handlePodiumCompChange = function() {
+        window.resetPodiumSelection = function() {
+            podiumSelection = { p1: null, p2: null, p3: null, p4: null };
+            
             const compName = document.getElementById('resCompName')?.value;
-            const comp = appData.competitions.find(c => c.name === compName);
+            const comp = (appData.competitions || []).find(c => c.name === compName);
 
             if (!comp) {
                 document.getElementById('badgeMaxPts').innerText = "0 Pts";
                 document.getElementById('badgeDate').innerText = "N/A";
-                return;
+            } else {
+                document.getElementById('badgeMaxPts').innerText = `${comp.maxPoints} Points`;
+                document.getElementById('badgeDate').innerText = comp.date;
             }
 
-            document.getElementById('badgeMaxPts').innerText = `${comp.maxPoints} Points`;
-            document.getElementById('badgeDate').innerText = comp.date;
-
-            // Reset Cascade Dropdowns
-            document.getElementById('podium1st').innerHTML = ALL_HOUSES.map(h => `<option value="${h}">${houseColorMap[h].emoji} ${h} House</option>`).join('');
-            updatePodiumCascade();
+            renderPodiumInteractiveCards();
         };
 
-        window.updatePodiumCascade = function() {
-            const h1 = document.getElementById('podium1st').value;
-            
-            // Populate 2nd Place Options
-            const opts2 = ALL_HOUSES.filter(h => h !== h1);
-            const sel2 = document.getElementById('podium2nd');
-            const prevVal2 = sel2.value;
-            sel2.innerHTML = opts2.map(h => `<option value="${h}">${houseColorMap[h].emoji} ${h} House</option>`).join('');
-            if (opts2.includes(prevVal2)) sel2.value = prevVal2;
+        function renderPodiumInteractiveCards() {
+            const cardsContainer = document.getElementById('podiumInteractiveCards');
+            const titleEl = document.getElementById('podiumStepTitle');
+            const summaryList = document.getElementById('podiumBreakdownList');
+            const submitBtn = document.getElementById('btnSubmitResults');
 
-            const h2 = sel2.value;
+            if (!cardsContainer) return;
 
-            // Populate 3rd Place Options
-            const opts3 = ALL_HOUSES.filter(h => h !== h1 && h !== h2);
-            const sel3 = document.getElementById('podium3rd');
-            const prevVal3 = sel3.value;
-            sel3.innerHTML = opts3.map(h => `<option value="${h}">${houseColorMap[h].emoji} ${h} House</option>`).join('');
-            if (opts3.includes(prevVal3)) sel3.value = prevVal3;
-
-            const h3 = sel3.value;
-
-            // Auto-detect 4th Place
-            const h4 = ALL_HOUSES.find(h => h !== h1 && h !== h2 && h !== h3);
-            document.getElementById('podium4th').value = `${houseColorMap[h4].emoji} ${h4} House`;
-            document.getElementById('podium4th').dataset.house = h4;
-
-            // Live Breakdown Preview Math
-            const compName = document.getElementById('resCompName').value;
-            const comp = appData.competitions.find(c => c.name === compName);
+            const compName = document.getElementById('resCompName')?.value;
+            const comp = (appData.competitions || []).find(c => c.name === compName);
             const maxPts = comp ? comp.maxPoints : 50;
             const { p1, p2, p3, p4 } = calculatePointBreakdown(maxPts);
 
-            document.getElementById('ptsPreview1').innerText = `${p1} Pts (${h1})`;
-            document.getElementById('ptsPreview2').innerText = `${p2} Pts (${h2})`;
-            document.getElementById('ptsPreview3').innerText = `${p3} Pts (${h3})`;
-            document.getElementById('ptsPreview4').innerText = `${p4} Pts (${h4})`;
+            // Determine current active selection step
+            let currentStep = 'p1';
+            if (podiumSelection.p1 && !podiumSelection.p2) currentStep = 'p2';
+            else if (podiumSelection.p1 && podiumSelection.p2 && !podiumSelection.p3) currentStep = 'p3';
+            else if (podiumSelection.p1 && podiumSelection.p2 && podiumSelection.p3) currentStep = 'p4';
+
+            // Auto-detect 4th place
+            if (currentStep === 'p4' && !podiumSelection.p4) {
+                podiumSelection.p4 = ALL_HOUSES.find(h => h !== podiumSelection.p1 && h !== podiumSelection.p2 && h !== podiumSelection.p3);
+            }
+
+            // Step Header Text
+            if (currentStep === 'p1') titleEl.innerText = "Step 1: Select 🥇 1st Place Winner";
+            else if (currentStep === 'p2') titleEl.innerText = "Step 2: Select 🥈 2nd Place";
+            else if (currentStep === 'p3') titleEl.innerText = "Step 3: Select 🥉 3rd Place";
+            else titleEl.innerText = "Step 4: 🏅 4th Place Auto-Detected";
+
+            // Available houses for current pick
+            const selectedHouses = [podiumSelection.p1, podiumSelection.p2, podiumSelection.p3, podiumSelection.p4].filter(Boolean);
+            const availableForPick = ALL_HOUSES.filter(h => !selectedHouses.includes(h));
+
+            if (currentStep !== 'p4') {
+                cardsContainer.innerHTML = availableForPick.map(h => {
+                    const style = houseColorMap[h];
+                    return `
+                        <button onclick="selectPodiumHouse('${h}', '${currentStep}')" class="house-card p-3 rounded-xl border ${style.border} ${style.bg} flex flex-col items-center justify-center gap-1">
+                            <span class="text-2xl">${style.emoji}</span>
+                            <span class="font-extrabold text-xs ${style.text}">${h} House</span>
+                        </button>
+                    `;
+                }).join('');
+            } else {
+                const style4 = houseColorMap[podiumSelection.p4];
+                cardsContainer.innerHTML = `
+                    <div class="col-span-2 p-3 rounded-xl border ${style4.border} ${style4.bg} flex items-center justify-center gap-2 text-xs font-extrabold ${style4.text}">
+                        ${style4.emoji} 4th Place Locked: ${podiumSelection.p4} House
+                    </div>
+                `;
+            }
+
+            // Summary List Render
+            summaryList.innerHTML = `
+                <div class="flex justify-between ${podiumSelection.p1 ? 'text-emerald-400 font-bold' : 'text-gray-500'}">
+                    <span>🥇 1st Place:</span> <b>${podiumSelection.p1 ? `${podiumSelection.p1} (+${p1} Pts)` : 'Pending'}</b>
+                </div>
+                <div class="flex justify-between ${podiumSelection.p2 ? 'text-blue-400 font-bold' : 'text-gray-500'}">
+                    <span>🥈 2nd Place:</span> <b>${podiumSelection.p2 ? `${podiumSelection.p2} (+${p2} Pts)` : 'Pending'}</b>
+                </div>
+                <div class="flex justify-between ${podiumSelection.p3 ? 'text-amber-400 font-bold' : 'text-gray-500'}">
+                    <span>🥉 3rd Place:</span> <b>${podiumSelection.p3 ? `${podiumSelection.p3} (+${p3} Pts)` : 'Pending'}</b>
+                </div>
+                <div class="flex justify-between ${podiumSelection.p4 ? 'text-red-400 font-bold' : 'text-gray-500'}">
+                    <span>🏅 4th Place:</span> <b>${podiumSelection.p4 ? `${podiumSelection.p4} (+${p4} Pts)` : 'Pending'}</b>
+                </div>
+            `;
+
             document.getElementById('ptsPreviewTotal').innerText = `${p1 + p2 + p3 + p4} / ${maxPts} Pts`;
+
+            // Enable submit button once all 4 ranks are selected
+            if (podiumSelection.p1 && podiumSelection.p2 && podiumSelection.p3 && podiumSelection.p4) {
+                submitBtn.disabled = false;
+                submitBtn.className = "w-full py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition shadow-lg shadow-amber-600/30 cursor-pointer";
+                submitBtn.innerText = "Publish Competition Results";
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.className = "w-full py-3 bg-gray-800 text-gray-500 rounded-lg font-bold transition cursor-not-allowed";
+                submitBtn.innerText = "Select Ranks to Proceed";
+            }
+        }
+
+        window.selectPodiumHouse = function(house, step) {
+            podiumSelection[step] = house;
+            renderPodiumInteractiveCards();
         };
 
         window.submitPodiumResult = function() {
             if (!isAdminLoggedIn) return;
 
             const compName = document.getElementById('resCompName').value;
-            const comp = appData.competitions.find(c => c.name === compName);
+            const comp = (appData.competitions || []).find(c => c.name === compName);
 
             if (!comp) {
                 Swal.fire({ title: 'Error', text: 'Select a valid competition.', icon: 'error', background: '#111', color: '#fff' });
                 return;
             }
 
-            if (appData.results.some(r => r.event === compName)) {
+            if ((appData.results || []).some(r => r.event === compName)) {
                 Swal.fire({ title: 'Already Declared', text: 'Results for this competition have already been submitted.', icon: 'warning', background: '#111', color: '#fff' });
                 return;
             }
 
-            const h1 = document.getElementById('podium1st').value;
-            const h2 = document.getElementById('podium2nd').value;
-            const h3 = document.getElementById('podium3rd').value;
-            const h4 = document.getElementById('podium4th').dataset.house;
-
+            const { p1: h1, p2: h2, p3: h3, p4: h4 } = podiumSelection;
             const { p1, p2, p3, p4 } = calculatePointBreakdown(comp.maxPoints);
 
-            // Apply points strictly using new sum-based formula
+            // Apply points strictly
             appData.houses[h1].points += p1; appData.houses[h1].wins += 1;
             appData.houses[h2].points += p2;
             appData.houses[h3].points += p3;
@@ -849,23 +987,26 @@
                 p4: h4, pts4: p4
             });
 
-            saveToCloud(`Podium finish published! Points assigned to all 4 houses.`);
+            saveToCloud(`Podium results published successfully! Points assigned.`);
         };
 
-        // --- DROPDOWNS & TABLES UI RENDERERS ---
+        // UI RENDER HELPERS
         function renderDropdowns() {
-            const availableComps = appData.competitions.filter(c => !appData.results.some(r => r.event === c.name));
+            const availableComps = (appData.competitions || []).filter(c => !(appData.results || []).some(r => r.event === c.name));
             const opts = availableComps.map(c => `<option value="${c.name}">${c.name} (${c.date})</option>`).join('');
-            const fallback = `<option value="">No Pending Competitions</option>`;
 
-            const allOpts = appData.competitions.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-            document.getElementById('studCompetition').innerHTML = allOpts || fallback;
-            document.getElementById('resCompName').innerHTML = opts || `<option value="">All Events Completed</option>`;
+            const allOpts = (appData.competitions || []).map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            
+            const studCompSelect = document.getElementById('studCompetition');
+            const resCompSelect = document.getElementById('resCompName');
+
+            if(studCompSelect) studCompSelect.innerHTML = allOpts || `<option value="">No Competitions Created</option>`;
+            if(resCompSelect) resCompSelect.innerHTML = opts || `<option value="">All Events Completed</option>`;
         }
 
         function renderTables() {
-            document.getElementById('eventsTableBody').innerHTML = appData.competitions.slice().reverse().map(c => {
-                const isDone = appData.results.some(r => r.event === c.name);
+            document.getElementById('eventsTableBody').innerHTML = (appData.competitions || []).slice().reverse().map(c => {
+                const isDone = (appData.results || []).some(r => r.event === c.name);
                 return `<tr class="hover:bg-white/5">
                     <td class="py-3 font-semibold text-white">${c.name}</td>
                     <td class="py-3 text-gray-400">${c.category}</td>
@@ -873,18 +1014,18 @@
                     <td class="py-3 text-center font-bold text-indigo-400">${c.maxPoints}</td>
                     <td class="py-3 text-right"><span class="px-2.5 py-1 text-xs rounded ${isDone ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'} font-bold">${isDone ? 'Completed' : 'Scheduled'}</span></td>
                 </tr>`;
-            }).join('') || `<tr><td colspan="5" class="py-4 text-center text-gray-500">No competitions created yet.</td></tr>`;
+            }).join('') || `<tr><td colspan="5" class="py-4 text-center text-gray-500">No competitions created.</td></tr>`;
 
-            document.getElementById('resultsTableBody').innerHTML = appData.results.slice().reverse().map(r => {
-                const s1 = houseColorMap[r.p1];
-                const s2 = houseColorMap[r.p2];
-                const s3 = houseColorMap[r.p3];
-                const s4 = houseColorMap[r.p4];
+            document.getElementById('resultsTableBody').innerHTML = (appData.results || []).slice().reverse().map(r => {
+                const s1 = houseColorMap[r.p1] || houseColorMap['Red'];
+                const s2 = houseColorMap[r.p2] || houseColorMap['Blue'];
+                const s3 = houseColorMap[r.p3] || houseColorMap['Green'];
+                const s4 = houseColorMap[r.p4] || houseColorMap['Yellow'];
 
                 return `
                     <tr class="hover:bg-white/5">
                         <td class="py-3 font-semibold text-white">${r.event}</td>
-                        <td class="py-3 text-gray-400 text-xs">${r.eventDate}</td>
+                        <td class="py-3 text-gray-400 text-xs">${r.eventDate || 'N/A'}</td>
                         <td class="py-3 font-bold ${s1.text}">${s1.emoji} ${r.p1}</td>
                         <td class="py-3 text-xs text-gray-300">
                             1st: <b class="${s1.text}">${r.p1} (+${r.pts1})</b> | 
@@ -892,16 +1033,18 @@
                             3rd: <b class="${s3.text}">${r.p3} (+${r.pts3})</b> | 
                             4th: <b class="${s4.text}">${r.p4} (+${r.pts4})</b>
                         </td>
-                        <td class="py-3 text-right font-bold text-emerald-400">${r.maxPoints} Pts</td>
+                        <td class="py-3 text-right font-bold text-emerald-400">${r.maxPoints || 50} Pts</td>
                     </tr>
                 `;
-            }).join('') || `<tr><td colspan="5" class="py-4 text-center text-gray-500">No competition results declared yet.</td></tr>`;
+            }).join('') || `<tr><td colspan="5" class="py-4 text-center text-gray-500">No results declared yet.</td></tr>`;
         }
 
         window.renderStudents = () => {
             const filter = document.getElementById('studentRosterFilter')?.value.toLowerCase() || '';
             const grid = document.getElementById('studentListGrid');
-            const filtered = appData.students.filter(s => 
+            if(!grid) return;
+
+            const filtered = (appData.students || []).filter(s => 
                 s.name.toLowerCase().includes(filter) || 
                 s.roll.toLowerCase().includes(filter) || 
                 s.class.toLowerCase().includes(filter)
@@ -921,41 +1064,44 @@
                         <i class="fa-solid fa-trophy mr-1 text-amber-400"></i> Event: <b class="text-white">${s.competition}</b>
                     </div>
                 </div>`;
-            }).join('') || `<div class="col-span-2 text-center text-gray-500 py-6">No students found.</div>`;
+            }).join('') || `<div class="col-span-2 text-center text-gray-500 py-6">No enrolled students found.</div>`;
         };
 
-        // --- SEARCH ENGINE ---
+        // UNIVERSAL SEARCH ENGINE
         window.setSearchMode = (mode) => {
             currentSearchMode = mode;
             document.querySelectorAll('.search-tab').forEach(b => b.classList.remove('active'));
-            document.getElementById(`btn-search-${mode}`).classList.add('active');
+            const activeTab = document.getElementById(`btn-search-${mode}`);
+            if(activeTab) activeTab.classList.add('active');
             renderSearchConsole();
         };
 
         function renderSearchConsole() {
             const controls = document.getElementById('searchControls');
+            if (!controls) return;
+
             if (currentSearchMode === 'student') {
                 controls.innerHTML = `
-                    <label class="block text-xs font-bold text-gray-400 mb-2">Search Student by Name or Roll</label>
-                    <input type="text" id="searchInput" oninput="runSearch()" placeholder="Type student name or roll number..." class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    <label class="block text-xs font-bold text-gray-400 mb-2">Search Student by Name or Roll Number</label>
+                    <input type="text" id="searchInput" oninput="runSearch()" placeholder="Type student name or roll..." class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
                 `;
             } else if (currentSearchMode === 'house') {
                 controls.innerHTML = `
-                    <label class="block text-xs font-bold text-gray-400 mb-2">Select House</label>
+                    <label class="block text-xs font-bold text-gray-400 mb-2">Select House Profile</label>
                     <select id="searchInput" onchange="runSearch()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
                         <option value="Red">🔴 Red House</option><option value="Blue">🔵 Blue House</option>
                         <option value="Green">🟢 Green House</option><option value="Yellow">🟡 Yellow House</option>
                     </select>
                 `;
             } else if (currentSearchMode === 'competition') {
-                const options = appData.competitions.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+                const options = (appData.competitions || []).map(c => `<option value="${c.name}">${c.name}</option>`).join('');
                 controls.innerHTML = `
                     <label class="block text-xs font-bold text-gray-400 mb-2">Select Competition</label>
                     <select id="searchInput" onchange="runSearch()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">${options || '<option value="">No Competitions Available</option>'}</select>
                 `;
             } else if (currentSearchMode === 'date') {
                 controls.innerHTML = `
-                    <label class="block text-xs font-bold text-gray-400 mb-2">Select Competition Date</label>
+                    <label class="block text-xs font-bold text-gray-400 mb-2">Select Event Scheduled Date</label>
                     <input type="date" id="searchInput" onclick="this.showPicker()" onchange="runSearch()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500 [color-scheme:dark] cursor-pointer">
                 `;
             }
@@ -965,10 +1111,11 @@
         window.runSearch = () => {
             const query = document.getElementById('searchInput')?.value.trim().toLowerCase() || '';
             const output = document.getElementById('searchResultsOutput');
+            if(!output) return;
 
             if (currentSearchMode === 'student') {
-                const matches = appData.students.filter(s => s.name.toLowerCase().includes(query) || s.roll.toLowerCase().includes(query));
-                if (!matches.length) { output.innerHTML = `<p class="text-sm text-gray-500">No matching students found.</p>`; return; }
+                const matches = (appData.students || []).filter(s => s.name.toLowerCase().includes(query) || s.roll.toLowerCase().includes(query));
+                if (!matches.length) { output.innerHTML = `<p class="text-sm text-gray-500 py-2">No matching students found.</p>`; return; }
                 
                 output.innerHTML = matches.map(s => {
                     const style = houseColorMap[s.house] || houseColorMap['Red'];
@@ -978,184 +1125,197 @@
                                 <span class="font-bold text-white text-base">${s.name} (Roll: ${s.roll})</span>
                                 <span class="text-xs font-bold ${style.text}">${style.emoji} ${s.house} House</span>
                             </div>
-                            <p class="text-xs text-gray-400">Class: ${s.class} | Registered Competition: <b class="text-indigo-400">${s.competition}</b></p>
+                            <p class="text-xs text-gray-400">Class: ${s.class} | Registered Event: <b class="text-indigo-400">${s.competition}</b></p>
                         </div>
                     `;
                 }).join('');
             } 
             else if (currentSearchMode === 'house') {
-                const houseName = document.getElementById('searchInput').value;
-                const h = appData.houses[houseName];
+                const houseName = document.getElementById('searchInput')?.value || 'Red';
+                const h = appData.houses[houseName] || { points: 0, wins: 0 };
                 const style = houseColorMap[houseName] || houseColorMap['Red'];
-                const houseStudents = appData.students.filter(s => s.house === houseName);
+                const houseStudents = (appData.students || []).filter(s => s.house === houseName);
 
                 output.innerHTML = `
                     <div class="space-y-4">
                         <div class="p-4 rounded-xl ${style.bg} border ${style.border} flex justify-between items-center">
                             <div>
                                 <h3 class="text-xl font-bold ${style.text}">${style.emoji} ${houseName} House Profile</h3>
-                                <p class="text-xs text-gray-400">Total Score: <b class="text-white">${h.points} pts</b> | 1st Place Victories: <b class="text-white">${h.wins}</b></p>
+                                <p class="text-xs text-gray-400 mt-1">Cumulative Points: <b class="text-white">${h.points} pts</b> | 1st Victories: <b class="text-white">${h.wins}</b></p>
                             </div>
-                            <span class="text-2xl font-black text-white">${houseStudents.length} Members</span>
+                            <span class="text-2xl font-black text-white">${houseStudents.length} Students</span>
                         </div>
                     </div>
                 `;
             }
             else if (currentSearchMode === 'competition') {
-                const compName = document.getElementById('searchInput').value;
-                const comp = appData.competitions.find(c => c.name === compName);
-                const res = appData.results.find(r => r.event === compName);
+                const compName = document.getElementById('searchInput')?.value;
+                const comp = (appData.competitions || []).find(c => c.name === compName);
+                const res = (appData.results || []).find(r => r.event === compName);
 
-                if(!comp) { output.innerHTML = `<p class="text-xs text-gray-500">Select a competition to view results.</p>`; return; }
+                if(!comp) { output.innerHTML = `<p class="text-xs text-gray-500">Select a competition to view status.</p>`; return; }
 
                 output.innerHTML = `
                     <div class="space-y-4">
                         <div class="p-4 bg-white/5 rounded-xl border border-white/10 flex justify-between">
                             <div>
                                 <h3 class="text-lg font-bold text-white">${comp.name}</h3>
-                                <p class="text-xs text-gray-400">Category: ${comp.category} | Date: ${comp.date} | Max Pool: ${comp.maxPoints} Pts</p>
+                                <p class="text-xs text-gray-400">Category: ${comp.category} | Scheduled Date: ${comp.date} | Pool Max: ${comp.maxPoints} Pts</p>
                             </div>
                         </div>
                         ${res ? `
-                            <h4 class="text-sm font-bold text-gray-300">Declared Podium Ranks:</h4>
+                            <h4 class="text-sm font-bold text-gray-300">Declared Ranks:</h4>
                             <div class="grid grid-cols-2 gap-2 text-xs">
                                 <div class="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded">🥇 1st: <b class="text-emerald-400">${res.p1} (+${res.pts1} Pts)</b></div>
                                 <div class="p-2 bg-blue-500/10 border border-blue-500/20 rounded">🥈 2nd: <b class="text-blue-400">${res.p2} (+${res.pts2} Pts)</b></div>
                                 <div class="p-2 bg-amber-500/10 border border-amber-500/20 rounded">🥉 3rd: <b class="text-amber-400">${res.p3} (+${res.pts3} Pts)</b></div>
                                 <div class="p-2 bg-red-500/10 border border-red-500/20 rounded">🏅 4th: <b class="text-red-400">${res.p4} (+${res.pts4} Pts)</b></div>
                             </div>
-                        ` : '<p class="text-xs text-amber-400 font-semibold">Competition is scheduled but results are pending.</p>'}
+                        ` : '<p class="text-xs text-amber-400 font-semibold">Scheduled event. Podium finish not yet declared.</p>'}
                     </div>
                 `;
             }
             else if (currentSearchMode === 'date') {
-                const selectedDate = document.getElementById('searchInput').value;
-                if(!selectedDate) { output.innerHTML = `<p class="text-xs text-gray-500">Select a date above.</p>`; return; }
-                const matches = appData.competitions.filter(c => c.date === selectedDate);
+                const selectedDate = document.getElementById('searchInput')?.value;
+                if(!selectedDate) { output.innerHTML = `<p class="text-xs text-gray-500">Select a date above to view events.</p>`; return; }
+                const matches = (appData.competitions || []).filter(c => c.date === selectedDate);
 
                 output.innerHTML = matches.map(c => `
                     <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-2 flex justify-between items-center">
                         <div>
                             <h4 class="font-bold text-white text-base">${c.name}</h4>
-                            <span class="text-xs text-gray-400">Category: ${c.category} | Max Pool: ${c.maxPoints} Pts</span>
+                            <span class="text-xs text-gray-400">Category: ${c.category} | Pool Score: ${c.maxPoints} Pts</span>
                         </div>
                         <span class="text-xs px-2.5 py-1 bg-indigo-500/20 text-indigo-400 rounded font-bold">Scheduled on ${c.date}</span>
                     </div>
-                `).join('') || `<p class="text-sm text-gray-500">No competitions scheduled on ${selectedDate}.</p>`;
+                `).join('') || `<p class="text-sm text-gray-500 py-2">No competitions scheduled on ${selectedDate}.</p>`;
             }
         };
 
-        // --- STATISTICS ENGINE ---
+        // STATISTICS ENGINE
         function renderStats() {
-            const sorted = Object.entries(appData.houses).sort((a,b) => b[1].points - a[1].points);
+            const sorted = Object.entries(appData.houses || {}).sort((a,b) => b[1].points - a[1].points);
             const bestKey = sorted.length ? sorted[0][0] : 'Red';
             const bestStyle = houseColorMap[bestKey] || houseColorMap['Red'];
 
-            document.getElementById('statBestHouse').innerHTML = sorted.length ? `${bestStyle.emoji} ${bestKey}` : 'N/A';
-            document.getElementById('statBestHouse').className = `text-2xl font-black mt-2 ${bestStyle.text}`;
+            const bestEl = document.getElementById('statBestHouse');
+            if(bestEl) {
+                bestEl.innerHTML = sorted.length ? `${bestStyle.emoji} ${bestKey}` : 'N/A';
+                bestEl.className = `text-2xl font-black mt-2 ${bestStyle.text}`;
+            }
 
-            const totalWins = Object.values(appData.houses).reduce((acc, h) => acc + h.wins, 0);
-            document.getElementById('statTotalWins').innerText = `${totalWins} Victories`;
-            document.getElementById('statTotalStudents').innerText = `${appData.students.length} Enrolled`;
-            document.getElementById('statTotalEvents').innerText = `${appData.competitions.length} Events`;
+            const totalWins = Object.values(appData.houses || {}).reduce((acc, h) => acc + (h.wins || 0), 0);
+            if(document.getElementById('statTotalWins')) document.getElementById('statTotalWins').innerText = `${totalWins} Victories`;
+            if(document.getElementById('statTotalStudents')) document.getElementById('statTotalStudents').innerText = `${(appData.students || []).length} Enrolled`;
+            if(document.getElementById('statTotalEvents')) document.getElementById('statTotalEvents').innerText = `${(appData.competitions || []).length} Events`;
 
             const labels = ['Red', 'Blue', 'Green', 'Yellow'];
             const houseHexColors = labels.map(k => houseColorMap[k].hex);
             
             const pointsData = labels.map(k => appData.houses[k] ? appData.houses[k].points : 0);
-            const partData = labels.map(k => appData.students.filter(s => s.house === k).length);
+            const partData = labels.map(k => (appData.students || []).filter(s => s.house === k).length);
 
             Chart.defaults.color = '#9ca3af';
             Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
 
-            if(chartWins) {
-                chartWins.data.labels = labels;
-                chartWins.data.datasets[0].data = pointsData;
-                chartWins.update();
-            } else {
-                chartWins = new Chart(document.getElementById('statsWinsChart').getContext('2d'), {
+            const canvasWins = document.getElementById('statsWinsChart');
+            if (canvasWins) {
+                if (chartWins) chartWins.destroy();
+                chartWins = new Chart(canvasWins.getContext('2d'), {
                     type: 'bar',
                     data: { labels, datasets: [{ label: 'Total Score', data: pointsData, backgroundColor: houseHexColors, borderRadius: 6 }] },
                     options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
                 });
             }
 
-            if(chartPart) {
-                chartPart.data.labels = labels;
-                chartPart.data.datasets[0].data = partData;
-                chartPart.update();
-            } else {
-                chartPart = new Chart(document.getElementById('statsParticipationChart').getContext('2d'), {
+            const canvasPart = document.getElementById('statsParticipationChart');
+            if (canvasPart) {
+                if (chartPart) chartPart.destroy();
+                chartPart = new Chart(canvasPart.getContext('2d'), {
                     type: 'doughnut',
                     data: { labels, datasets: [{ data: partData, backgroundColor: houseHexColors, borderWidth: 0 }] },
                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
                 });
             }
 
-            document.getElementById('eventPointsMatrixBody').innerHTML = appData.competitions.map(c => {
-                const res = appData.results.find(r => r.event === c.name);
-                const getPts = (h) => {
-                    if (!res) return 0;
-                    if (res.p1 === h) return res.pts1;
-                    if (res.p2 === h) return res.pts2;
-                    if (res.p3 === h) return res.pts3;
-                    if (res.p4 === h) return res.pts4;
-                    return 0;
-                };
+            const matrixBody = document.getElementById('eventPointsMatrixBody');
+            if(matrixBody) {
+                matrixBody.innerHTML = (appData.competitions || []).map(c => {
+                    const res = (appData.results || []).find(r => r.event === c.name);
+                    const getPts = (h) => {
+                        if (!res) return 0;
+                        if (res.p1 === h) return res.pts1;
+                        if (res.p2 === h) return res.pts2;
+                        if (res.p3 === h) return res.pts3;
+                        if (res.p4 === h) return res.pts4;
+                        return 0;
+                    };
 
-                const redPts = getPts('Red');
-                const bluePts = getPts('Blue');
-                const greenPts = getPts('Green');
-                const yellowPts = getPts('Yellow');
+                    const redPts = getPts('Red');
+                    const bluePts = getPts('Blue');
+                    const greenPts = getPts('Green');
+                    const yellowPts = getPts('Yellow');
 
-                return `<tr class="hover:bg-white/5">
-                    <td class="py-3 font-semibold text-white">${c.name}</td>
-                    <td class="py-3 text-gray-400">${c.category}</td>
-                    <td class="py-3 font-bold text-red-400">${redPts}</td>
-                    <td class="py-3 font-bold text-blue-400">${bluePts}</td>
-                    <td class="py-3 font-bold text-emerald-400">${greenPts}</td>
-                    <td class="py-3 font-bold text-amber-400">${yellowPts}</td>
-                    <td class="py-3 text-right font-black text-white">${redPts + bluePts + greenPts + yellowPts} Pts</td>
-                </tr>`;
-            }).join('') || `<tr><td colspan="7" class="py-4 text-center text-gray-500">No events matrix available.</td></tr>`;
+                    return `<tr class="hover:bg-white/5">
+                        <td class="py-3 font-semibold text-white">${c.name}</td>
+                        <td class="py-3 text-gray-400">${c.category}</td>
+                        <td class="py-3 font-bold text-red-400">${redPts}</td>
+                        <td class="py-3 font-bold text-blue-400">${bluePts}</td>
+                        <td class="py-3 font-bold text-emerald-400">${greenPts}</td>
+                        <td class="py-3 font-bold text-amber-400">${yellowPts}</td>
+                        <td class="py-3 text-right font-black text-white">${redPts + bluePts + greenPts + yellowPts} Pts</td>
+                    </tr>`;
+                }).join('') || `<tr><td colspan="7" class="py-4 text-center text-gray-500">No event matrix data.</td></tr>`;
+            }
         }
 
-        // --- NOTICE & CERTIFICATE HUB ---
+        // NOTICE & CERTIFICATE HUB
         function renderCertificatesHub() {
             const noticeSelect = document.getElementById('noticeResultSelect');
             const certSelect = document.getElementById('certStudentSelect');
 
-            const resOpts = appData.results.map((r, i) => `<option value="${i}">${r.event} (Scheduled: ${r.eventDate})</option>`).join('');
-            const studOpts = appData.students.map((s, i) => `<option value="${i}">${s.name} (${s.house} House - ${s.competition})</option>`).join('');
+            if (noticeSelect) {
+                const resOpts = (appData.results || []).map((r, i) => `<option value="${i}">${r.event} (${r.eventDate})</option>`).join('');
+                noticeSelect.innerHTML = resOpts || `<option value="">No Declared Results Available</option>`;
+            }
 
-            noticeSelect.innerHTML = resOpts || `<option value="">No Declared Results Available</option>`;
-            certSelect.innerHTML = studOpts || `<option value="">No Students Available</option>`;
+            if (certSelect) {
+                const studOpts = (appData.students || []).map((s, i) => `<option value="${i}">${s.name} (${s.house} House - ${s.competition})</option>`).join('');
+                certSelect.innerHTML = studOpts || `<option value="">No Students Available</option>`;
+            }
 
             renderNoticePreview();
             renderCertificatePreview();
         }
 
         window.renderNoticePreview = () => {
-            const idx = document.getElementById('noticeResultSelect').value;
+            const idx = document.getElementById('noticeResultSelect')?.value;
             const preview = document.getElementById('noticePreviewBox');
-            if (idx === '' || !appData.results[idx]) {
+            if(!preview) return;
+
+            if (idx === '' || !(appData.results || [])[idx]) {
                 preview.innerText = 'No published competition results available.';
                 return;
             }
             const r = appData.results[idx];
-            preview.innerText = `📢 OFFICIAL SCHOOL CHAMPIONSHIP ANNOUNCEMENT\n\nScheduled Event Date: ${r.eventDate}\nCompetition: ${r.event}\n\n🏆 FINAL PODIUM STANDINGS:\n🥇 1st Place: ${r.p1.toUpperCase()} HOUSE (+${r.pts1} Pts)\n🥈 2nd Place: ${r.p2.toUpperCase()} HOUSE (+${r.pts2} Pts)\n🥉 3rd Place: ${r.p3.toUpperCase()} HOUSE (+${r.pts3} Pts)\n🏅 4th Place: ${r.p4.toUpperCase()} HOUSE (+${r.pts4} Pts)\n\nCongratulations to all participants!`;
+            preview.innerText = `📢 OFFICIAL SCHOOL CHAMPIONSHIP ANNOUNCEMENT\n\nScheduled Date: ${r.eventDate}\nCompetition: ${r.event}\n\n🏆 FINAL PODIUM STANDINGS:\n🥇 1st Place: ${r.p1.toUpperCase()} HOUSE (+${r.pts1} Pts)\n🥈 2nd Place: ${r.p2.toUpperCase()} HOUSE (+${r.pts2} Pts)\n🥉 3rd Place: ${r.p3.toUpperCase()} HOUSE (+${r.pts3} Pts)\n🏅 4th Place: ${r.p4.toUpperCase()} HOUSE (+${r.pts4} Pts)\n\nCongratulations to all participating houses!`;
         };
 
         window.renderCertificatePreview = () => {
-            const idx = document.getElementById('certStudentSelect').value;
-            if (idx === '' || !appData.students[idx]) return;
+            const idx = document.getElementById('certStudentSelect')?.value;
+            if (idx === '' || !(appData.students || [])[idx]) return;
             const s = appData.students[idx];
 
-            document.getElementById('certStudentName').innerText = s.name;
-            document.getElementById('certStudentHouse').innerText = `${s.house} House`;
-            document.getElementById('certEventName').innerText = s.competition;
-            document.getElementById('certDate').innerText = new Date().toLocaleDateString();
+            if(document.getElementById('certStudentName')) document.getElementById('certStudentName').innerText = s.name;
+            if(document.getElementById('certStudentHouse')) document.getElementById('certStudentHouse').innerText = `${s.house} House`;
+            if(document.getElementById('certEventName')) document.getElementById('certEventName').innerText = s.competition;
+            if(document.getElementById('certDate')) document.getElementById('certDate').innerText = new Date().toLocaleDateString();
         };
+
+        // Initial setup
+        window.addEventListener('DOMContentLoaded', () => {
+            renderAll();
+        });
     </script>
 </body>
 </html>
