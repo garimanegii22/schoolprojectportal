@@ -60,7 +60,6 @@
         </div>
         
         <div class="flex-1 overflow-y-auto custom-scrollbar py-4">
-            <!-- PUBLIC PORTAL NAVIGATION -->
             <div class="py-2 px-6 text-[10px] font-extrabold tracking-wider text-gray-500 uppercase hidden md:block">Public Portal</div>
             <nav class="flex-col gap-1">
                 <button onclick="navigate('dashboard')" id="nav-dashboard" class="nav-item active flex items-center px-6 py-3 text-gray-400 hover:text-white w-full text-left font-semibold text-sm">
@@ -80,7 +79,6 @@
                 </button>
             </nav>
 
-            <!-- RESTRICTED ADMIN PORTAL NAVIGATION (HIDDEN BY DEFAULT) -->
             <div id="adminNavGroup" class="hidden mt-6">
                 <div class="py-2 px-6 text-[10px] font-extrabold tracking-wider text-amber-500/90 uppercase hidden md:flex items-center justify-between">
                     <span>Admin Controls</span>
@@ -100,7 +98,6 @@
             </div>
         </div>
 
-        <!-- Admin Auth Toggle & Status -->
         <div class="p-4 border-t border-white/10 space-y-3">
             <button id="adminAuthBtn" onclick="toggleAdminAuth()" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20">
                 <i class="fa-solid fa-shield-halved"></i> <span class="hidden md:inline" id="adminBtnText">Admin Login</span>
@@ -112,11 +109,9 @@
         </div>
     </aside>
 
-    <!-- Main Workspace -->
     <main class="flex-1 h-full overflow-y-auto custom-scrollbar bg-black">
         <div class="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
             
-            <!-- PUBLIC VIEW 1: LIVE LEADERBOARD -->
             <section id="view-dashboard" class="view-section space-y-8">
                 <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/10 pb-4">
                     <div>
@@ -136,7 +131,6 @@
                 </div>
             </section>
 
-            <!-- PUBLIC VIEW 2: UNIVERSAL SEARCH ENGINE -->
             <section id="view-search" class="view-section space-y-8 hidden">
                 <header class="border-b border-white/10 pb-4">
                     <h2 class="text-3xl font-extrabold text-white">Universal Search Engine</h2>
@@ -164,7 +158,6 @@
                 </div>
             </section>
 
-            <!-- PUBLIC VIEW 3: STATISTICS ENGINE -->
             <section id="view-stats" class="view-section space-y-8 hidden">
                 <header class="border-b border-white/10 pb-4">
                     <h2 class="text-3xl font-extrabold text-white">Championship Analytics Engine</h2>
@@ -237,7 +230,6 @@
                 </div>
             </section>
 
-            <!-- PUBLIC VIEW 4: NOTICE & CERTIFICATES -->
             <section id="view-certificates" class="view-section space-y-8 hidden">
                 <header class="border-b border-white/10 pb-4 flex justify-between items-center">
                     <div>
@@ -280,7 +272,6 @@
                 </div>
             </section>
 
-            <!-- PUBLIC VIEW 5: RULES & EVENT CALENDAR -->
             <section id="view-calendar" class="view-section space-y-8 hidden">
                 <header class="border-b border-white/10 pb-4">
                     <h2 class="text-3xl font-extrabold text-white">Event Schedule & Rules</h2>
@@ -309,7 +300,6 @@
                 </div>
             </section>
 
-            <!-- RESTRICTED ADMIN VIEW 1: ADD COMPETITION -->
             <section id="view-events" class="view-section space-y-8 hidden">
                 <header class="border-b border-amber-500/30 pb-4">
                     <div class="flex items-center gap-2">
@@ -363,7 +353,6 @@
                 </div>
             </section>
 
-            <!-- RESTRICTED ADMIN VIEW 2: REGISTER STUDENT -->
             <section id="view-students" class="view-section space-y-8 hidden">
                 <header class="border-b border-amber-500/30 pb-4">
                     <div class="flex items-center gap-2">
@@ -420,7 +409,6 @@
                 </div>
             </section>
 
-            <!-- RESTRICTED ADMIN VIEW 3: INTERACTIVE PODIUM FINISH RESULT ENTRY -->
             <section id="view-results" class="view-section space-y-8 hidden">
                 <header class="border-b border-amber-500/30 pb-4">
                     <div class="flex items-center gap-2">
@@ -431,7 +419,6 @@
                 </header>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Dynamic Interactive Podium Form -->
                     <div class="glass p-6 rounded-2xl h-fit border border-amber-500/30 space-y-6">
                         <h3 class="text-lg font-bold text-amber-400 flex items-center gap-2"><i class="fa-solid fa-trophy"></i> Declare Podium Finish</h3>
                         
@@ -440,13 +427,11 @@
                             <select id="resCompName" onchange="resetPodiumSelection()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-amber-500"></select>
                         </div>
 
-                        <!-- Active Event Details Banner -->
                         <div id="compInfoBadge" class="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs space-y-1">
                             <p class="text-gray-300">Max Pool Points: <b id="badgeMaxPts" class="text-amber-400">0 Pts</b></p>
                             <p class="text-gray-400">Scheduled Date: <b id="badgeDate" class="text-white">N/A</b></p>
                         </div>
 
-                        <!-- Step-By-Step Interactive Selection Cards -->
                         <div class="space-y-4 pt-2 border-t border-white/10">
                             <div class="flex justify-between items-center">
                                 <span id="podiumStepTitle" class="text-xs font-bold text-amber-400 uppercase tracking-wider">Step 1: Select 🥇 1st Place Winner</span>
@@ -456,7 +441,6 @@
                             <div id="podiumInteractiveCards" class="grid grid-cols-2 gap-3"></div>
                         </div>
 
-                        <!-- Live Point Breakdown Matrix Preview -->
                         <div id="podiumSummaryBox" class="p-4 bg-white/5 border border-white/10 rounded-xl space-y-2 text-xs">
                             <span class="font-bold text-gray-300 uppercase tracking-wider block border-b border-white/10 pb-1">Automated Point Breakdown:</span>
                             <div id="podiumBreakdownList" class="space-y-1"></div>
@@ -469,7 +453,6 @@
                         <button id="btnSubmitResults" onclick="submitPodiumResult()" disabled class="w-full py-3 bg-gray-800 text-gray-500 rounded-lg font-bold transition cursor-not-allowed">Complete All Ranks First</button>
                     </div>
 
-                    <!-- Audit Log with Scheduled & Submitted Dates -->
                     <div class="lg:col-span-2 glass p-6 rounded-2xl border border-white/10">
                         <h3 class="text-lg font-bold mb-4 text-white flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left"></i> Results Audit Log</h3>
                         <div class="overflow-x-auto">
@@ -493,12 +476,10 @@
         </div>
     </main>
 
-    <!-- FIREBASE & CORE SYSTEM APPLICATION SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAfcEToC0bCVIGlQe8bZFN0xt-2reTWqZY",
             authDomain: "schoolhouseportal.firebaseapp.com",
@@ -511,7 +492,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Styling Color Maps
         const houseColorMap = {
             'Red': { hex: '#ef4444', text: 'text-red-400', border: 'border-red-500/40', bg: 'bg-red-500/10', emoji: '🔴' },
             'Blue': { hex: '#3b82f6', text: 'text-blue-400', border: 'border-blue-500/40', bg: 'bg-blue-500/10', emoji: '🔵' },
@@ -521,7 +501,6 @@
 
         const ALL_HOUSES = ['Red', 'Blue', 'Green', 'Yellow'];
 
-        // Fallback Seed State
         const defaultSeedData = {
             houses: {
                 Red: { name: "Red", emoji: "🔴", points: 140, wins: 2 },
@@ -575,16 +554,25 @@
             ]
         };
 
-        // App State
         let isAdminLoggedIn = false;
         let appData = defaultSeedData;
         let currentSearchMode = 'student';
         let chartWins = null, chartPart = null;
-
-        // Podium Finish Selection Tracking
         let podiumSelection = { p1: null, p2: null, p3: null, p4: null };
 
-        // Navigation Engine
+        function ensureDataStructure() {
+            appData = appData || {};
+            appData.houses = appData.houses || {
+                Red: { name: "Red", emoji: "🔴", points: 0, wins: 0 },
+                Blue: { name: "Blue", emoji: "🔵", points: 0, wins: 0 },
+                Green: { name: "Green", emoji: "🟢", points: 0, wins: 0 },
+                Yellow: { name: "Yellow", emoji: "🟡", points: 0, wins: 0 }
+            };
+            appData.competitions = appData.competitions || [];
+            appData.students = appData.students || [];
+            appData.results = appData.results || [];
+        }
+
         window.navigate = function(viewId) {
             const adminViews = ['events', 'students', 'results'];
             if (adminViews.includes(viewId) && !isAdminLoggedIn) {
@@ -611,10 +599,14 @@
             if (navTarget) navTarget.classList.add('active');
 
             if (viewId === 'search') setSearchMode(currentSearchMode);
+            
+            if (viewId === 'stats') {
+                renderStats();
+            }
+            
             renderAll();
         };
 
-        // ADMIN AUTHENTICATION
         window.toggleAdminAuth = function() {
             if (isAdminLoggedIn) {
                 isAdminLoggedIn = false;
@@ -676,7 +668,6 @@
             }
         }
 
-        // Firebase Cloud Sync
         const docRef = doc(db, "portalData", "mainState");
         onSnapshot(docRef, (docSnap) => {
             if (docSnap.exists()) {
@@ -684,13 +675,16 @@
             } else {
                 setDoc(docRef, appData);
             }
+            ensureDataStructure();
             renderAll();
         }, (error) => {
             console.warn("Using offline seed data due to network:", error);
+            ensureDataStructure();
             renderAll();
         });
 
         async function saveToCloud(msg) {
+            ensureDataStructure();
             try {
                 await setDoc(docRef, appData);
                 Swal.fire({ title: 'Saved!', text: msg, icon: 'success', background: '#111', color: '#fff', confirmButtonColor: '#4f46e5', timer: 1500 });
@@ -699,7 +693,6 @@
             }
         }
 
-        // --- MASTER RENDERER ---
         function renderAll() {
             renderLeaderboard();
             renderDropdowns();
@@ -711,10 +704,9 @@
             resetPodiumSelection();
         }
 
-        // PUBLIC VIEW 1: LEADERBOARD
         function renderLeaderboard() {
             const grid = document.getElementById('leaderboardGrid');
-            const sorted = Object.entries(appData.houses || {}).sort((a, b) => b[1].points - a[1].points);
+            const sorted = Object.entries(appData.houses).sort((a, b) => b[1].points - a[1].points);
             const topPoints = sorted.length ? sorted[0][1].points : 0;
 
             grid.innerHTML = sorted.map(([key, h], i) => {
@@ -744,7 +736,7 @@
             }).join('');
 
             const highlightsContainer = document.getElementById('dashboardRecentHighlights');
-            const recentResults = (appData.results || []).slice().reverse().slice(0, 4);
+            const recentResults = [...appData.results].reverse().slice(0, 4);
 
             highlightsContainer.innerHTML = recentResults.map(r => {
                 const winnerStyle = houseColorMap[r.p1] || houseColorMap['Red'];
@@ -760,13 +752,12 @@
             }).join('') || `<p class="text-sm text-gray-500 py-2">No completed events recorded.</p>`;
         }
 
-        // PUBLIC VIEW 5: CALENDAR & RULES
         function renderCalendarAndRules() {
             const list = document.getElementById('calendarEventsList');
             if(!list) return;
 
-            list.innerHTML = (appData.competitions || []).map(c => {
-                const isCompleted = (appData.results || []).some(r => r.event === c.name);
+            list.innerHTML = appData.competitions.map(c => {
+                const isCompleted = appData.results.some(r => r.event === c.name);
                 return `
                     <div class="p-4 rounded-xl border border-white/10 bg-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                         <div>
@@ -784,13 +775,12 @@
             }).join('') || `<p class="text-xs text-gray-500">No events scheduled.</p>`;
         }
 
-        // ADMIN TASK 1: ADD COMPETITION
         window.handleCompSubmit = (e) => {
             e.preventDefault();
             if(!isAdminLoggedIn) return;
 
             const name = document.getElementById('compName').value.trim();
-            if((appData.competitions || []).some(c => c.name.toLowerCase() === name.toLowerCase())) {
+            if(appData.competitions.some(c => c.name.toLowerCase() === name.toLowerCase())) {
                 Swal.fire({ title: 'Duplicate Name', text: 'A competition with this name already exists.', icon: 'warning', background: '#111', color: '#fff' });
                 return;
             }
@@ -807,7 +797,6 @@
             document.getElementById('compMaxPoints').value = "50";
         };
 
-        // ADMIN TASK 2: REGISTER STUDENT
         window.handleStudentSubmit = (e) => {
             e.preventDefault();
             if(!isAdminLoggedIn) return;
@@ -820,7 +809,7 @@
                 return;
             }
 
-            if((appData.students || []).some(s => s.roll === roll && s.competition === comp)) {
+            if(appData.students.some(s => s.roll === roll && s.competition === comp)) {
                 Swal.fire({ title: 'Already Enrolled', text: `Student with Roll ${roll} is already registered for ${comp}.`, icon: 'error', background: '#111', color: '#fff' });
                 return;
             }
@@ -837,7 +826,6 @@
             e.target.reset();
         };
 
-        // ADMIN TASK 3: REVAMPED INTERACTIVE PODIUM ENTRY
         function calculatePointBreakdown(maxPts) {
             const p1 = Math.round(maxPts * 0.40);
             const p2 = Math.round(maxPts * 0.30);
@@ -850,14 +838,18 @@
             podiumSelection = { p1: null, p2: null, p3: null, p4: null };
             
             const compName = document.getElementById('resCompName')?.value;
-            const comp = (appData.competitions || []).find(c => c.name === compName);
+            const comp = appData.competitions.find(c => c.name === compName);
 
             if (!comp) {
-                document.getElementById('badgeMaxPts').innerText = "0 Pts";
-                document.getElementById('badgeDate').innerText = "N/A";
+                const elMax = document.getElementById('badgeMaxPts');
+                const elDate = document.getElementById('badgeDate');
+                if (elMax) elMax.innerText = "0 Pts";
+                if (elDate) elDate.innerText = "N/A";
             } else {
-                document.getElementById('badgeMaxPts').innerText = `${comp.maxPoints} Points`;
-                document.getElementById('badgeDate').innerText = comp.date;
+                const elMax = document.getElementById('badgeMaxPts');
+                const elDate = document.getElementById('badgeDate');
+                if (elMax) elMax.innerText = `${comp.maxPoints} Points`;
+                if (elDate) elDate.innerText = comp.date;
             }
 
             renderPodiumInteractiveCards();
@@ -869,31 +861,38 @@
             const summaryList = document.getElementById('podiumBreakdownList');
             const submitBtn = document.getElementById('btnSubmitResults');
 
-            if (!cardsContainer) return;
+            if (!cardsContainer || !titleEl || !summaryList || !submitBtn) return;
 
             const compName = document.getElementById('resCompName')?.value;
-            const comp = (appData.competitions || []).find(c => c.name === compName);
-            const maxPts = comp ? comp.maxPoints : 50;
+            const comp = appData.competitions.find(c => c.name === compName);
+            
+            if (!comp) {
+                cardsContainer.innerHTML = `<div class="col-span-2 p-4 text-center text-amber-500/80 bg-amber-500/10 rounded-xl border border-amber-500/20 text-xs font-bold">No upcoming events available for scoring.</div>`;
+                summaryList.innerHTML = '';
+                document.getElementById('ptsPreviewTotal').innerText = '0 / 0 Pts';
+                submitBtn.disabled = true;
+                submitBtn.className = "w-full py-3 bg-gray-800 text-gray-500 rounded-lg font-bold transition cursor-not-allowed";
+                submitBtn.innerText = "No Event Selected";
+                return;
+            }
+
+            const maxPts = comp.maxPoints;
             const { p1, p2, p3, p4 } = calculatePointBreakdown(maxPts);
 
-            // Determine current active selection step
             let currentStep = 'p1';
             if (podiumSelection.p1 && !podiumSelection.p2) currentStep = 'p2';
             else if (podiumSelection.p1 && podiumSelection.p2 && !podiumSelection.p3) currentStep = 'p3';
             else if (podiumSelection.p1 && podiumSelection.p2 && podiumSelection.p3) currentStep = 'p4';
 
-            // Auto-detect 4th place
             if (currentStep === 'p4' && !podiumSelection.p4) {
                 podiumSelection.p4 = ALL_HOUSES.find(h => h !== podiumSelection.p1 && h !== podiumSelection.p2 && h !== podiumSelection.p3);
             }
 
-            // Step Header Text
             if (currentStep === 'p1') titleEl.innerText = "Step 1: Select 🥇 1st Place Winner";
             else if (currentStep === 'p2') titleEl.innerText = "Step 2: Select 🥈 2nd Place";
             else if (currentStep === 'p3') titleEl.innerText = "Step 3: Select 🥉 3rd Place";
             else titleEl.innerText = "Step 4: 🏅 4th Place Auto-Detected";
 
-            // Available houses for current pick
             const selectedHouses = [podiumSelection.p1, podiumSelection.p2, podiumSelection.p3, podiumSelection.p4].filter(Boolean);
             const availableForPick = ALL_HOUSES.filter(h => !selectedHouses.includes(h));
 
@@ -916,7 +915,6 @@
                 `;
             }
 
-            // Summary List Render
             summaryList.innerHTML = `
                 <div class="flex justify-between ${podiumSelection.p1 ? 'text-emerald-400 font-bold' : 'text-gray-500'}">
                     <span>🥇 1st Place:</span> <b>${podiumSelection.p1 ? `${podiumSelection.p1} (+${p1} Pts)` : 'Pending'}</b>
@@ -934,7 +932,6 @@
 
             document.getElementById('ptsPreviewTotal').innerText = `${p1 + p2 + p3 + p4} / ${maxPts} Pts`;
 
-            // Enable submit button once all 4 ranks are selected
             if (podiumSelection.p1 && podiumSelection.p2 && podiumSelection.p3 && podiumSelection.p4) {
                 submitBtn.disabled = false;
                 submitBtn.className = "w-full py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition shadow-lg shadow-amber-600/30 cursor-pointer";
@@ -955,14 +952,14 @@
             if (!isAdminLoggedIn) return;
 
             const compName = document.getElementById('resCompName').value;
-            const comp = (appData.competitions || []).find(c => c.name === compName);
+            const comp = appData.competitions.find(c => c.name === compName);
 
             if (!comp) {
                 Swal.fire({ title: 'Error', text: 'Select a valid competition.', icon: 'error', background: '#111', color: '#fff' });
                 return;
             }
 
-            if ((appData.results || []).some(r => r.event === compName)) {
+            if (appData.results.some(r => r.event === compName)) {
                 Swal.fire({ title: 'Already Declared', text: 'Results for this competition have already been submitted.', icon: 'warning', background: '#111', color: '#fff' });
                 return;
             }
@@ -970,7 +967,6 @@
             const { p1: h1, p2: h2, p3: h3, p4: h4 } = podiumSelection;
             const { p1, p2, p3, p4 } = calculatePointBreakdown(comp.maxPoints);
 
-            // Apply points strictly
             appData.houses[h1].points += p1; appData.houses[h1].wins += 1;
             appData.houses[h2].points += p2;
             appData.houses[h3].points += p3;
@@ -990,12 +986,10 @@
             saveToCloud(`Podium results published successfully! Points assigned.`);
         };
 
-        // UI RENDER HELPERS
         function renderDropdowns() {
-            const availableComps = (appData.competitions || []).filter(c => !(appData.results || []).some(r => r.event === c.name));
+            const availableComps = appData.competitions.filter(c => !appData.results.some(r => r.event === c.name));
             const opts = availableComps.map(c => `<option value="${c.name}">${c.name} (${c.date})</option>`).join('');
-
-            const allOpts = (appData.competitions || []).map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            const allOpts = appData.competitions.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
             
             const studCompSelect = document.getElementById('studCompetition');
             const resCompSelect = document.getElementById('resCompName');
@@ -1005,8 +999,8 @@
         }
 
         function renderTables() {
-            document.getElementById('eventsTableBody').innerHTML = (appData.competitions || []).slice().reverse().map(c => {
-                const isDone = (appData.results || []).some(r => r.event === c.name);
+            document.getElementById('eventsTableBody').innerHTML = [...appData.competitions].reverse().map(c => {
+                const isDone = appData.results.some(r => r.event === c.name);
                 return `<tr class="hover:bg-white/5">
                     <td class="py-3 font-semibold text-white">${c.name}</td>
                     <td class="py-3 text-gray-400">${c.category}</td>
@@ -1016,7 +1010,7 @@
                 </tr>`;
             }).join('') || `<tr><td colspan="5" class="py-4 text-center text-gray-500">No competitions created.</td></tr>`;
 
-            document.getElementById('resultsTableBody').innerHTML = (appData.results || []).slice().reverse().map(r => {
+            document.getElementById('resultsTableBody').innerHTML = [...appData.results].reverse().map(r => {
                 const s1 = houseColorMap[r.p1] || houseColorMap['Red'];
                 const s2 = houseColorMap[r.p2] || houseColorMap['Blue'];
                 const s3 = houseColorMap[r.p3] || houseColorMap['Green'];
@@ -1044,7 +1038,7 @@
             const grid = document.getElementById('studentListGrid');
             if(!grid) return;
 
-            const filtered = (appData.students || []).filter(s => 
+            const filtered = appData.students.filter(s => 
                 s.name.toLowerCase().includes(filter) || 
                 s.roll.toLowerCase().includes(filter) || 
                 s.class.toLowerCase().includes(filter)
@@ -1067,7 +1061,6 @@
             }).join('') || `<div class="col-span-2 text-center text-gray-500 py-6">No enrolled students found.</div>`;
         };
 
-        // UNIVERSAL SEARCH ENGINE
         window.setSearchMode = (mode) => {
             currentSearchMode = mode;
             document.querySelectorAll('.search-tab').forEach(b => b.classList.remove('active'));
@@ -1083,38 +1076,38 @@
             if (currentSearchMode === 'student') {
                 controls.innerHTML = `
                     <label class="block text-xs font-bold text-gray-400 mb-2">Search Student by Name or Roll Number</label>
-                    <input type="text" id="searchInput" oninput="runSearch()" placeholder="Type student name or roll..." class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    <input type="text" id="searchInputFilter" oninput="runSearch()" placeholder="Type student name or roll..." class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
                 `;
             } else if (currentSearchMode === 'house') {
                 controls.innerHTML = `
                     <label class="block text-xs font-bold text-gray-400 mb-2">Select House Profile</label>
-                    <select id="searchInput" onchange="runSearch()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    <select id="searchInputFilter" onchange="runSearch()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
                         <option value="Red">🔴 Red House</option><option value="Blue">🔵 Blue House</option>
                         <option value="Green">🟢 Green House</option><option value="Yellow">🟡 Yellow House</option>
                     </select>
                 `;
             } else if (currentSearchMode === 'competition') {
-                const options = (appData.competitions || []).map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+                const options = appData.competitions.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
                 controls.innerHTML = `
                     <label class="block text-xs font-bold text-gray-400 mb-2">Select Competition</label>
-                    <select id="searchInput" onchange="runSearch()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">${options || '<option value="">No Competitions Available</option>'}</select>
+                    <select id="searchInputFilter" onchange="runSearch()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500">${options || '<option value="">No Competitions Available</option>'}</select>
                 `;
             } else if (currentSearchMode === 'date') {
                 controls.innerHTML = `
                     <label class="block text-xs font-bold text-gray-400 mb-2">Select Event Scheduled Date</label>
-                    <input type="date" id="searchInput" onclick="this.showPicker()" onchange="runSearch()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500 [color-scheme:dark] cursor-pointer">
+                    <input type="date" id="searchInputFilter" onclick="this.showPicker()" onchange="runSearch()" class="w-full bg-black border border-white/15 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-indigo-500 [color-scheme:dark] cursor-pointer">
                 `;
             }
             window.runSearch();
         }
 
         window.runSearch = () => {
-            const query = document.getElementById('searchInput')?.value.trim().toLowerCase() || '';
+            const query = document.getElementById('searchInputFilter')?.value.trim().toLowerCase() || '';
             const output = document.getElementById('searchResultsOutput');
             if(!output) return;
 
             if (currentSearchMode === 'student') {
-                const matches = (appData.students || []).filter(s => s.name.toLowerCase().includes(query) || s.roll.toLowerCase().includes(query));
+                const matches = appData.students.filter(s => s.name.toLowerCase().includes(query) || s.roll.toLowerCase().includes(query));
                 if (!matches.length) { output.innerHTML = `<p class="text-sm text-gray-500 py-2">No matching students found.</p>`; return; }
                 
                 output.innerHTML = matches.map(s => {
@@ -1131,10 +1124,10 @@
                 }).join('');
             } 
             else if (currentSearchMode === 'house') {
-                const houseName = document.getElementById('searchInput')?.value || 'Red';
+                const houseName = document.getElementById('searchInputFilter')?.value || 'Red';
                 const h = appData.houses[houseName] || { points: 0, wins: 0 };
                 const style = houseColorMap[houseName] || houseColorMap['Red'];
-                const houseStudents = (appData.students || []).filter(s => s.house === houseName);
+                const houseStudents = appData.students.filter(s => s.house === houseName);
 
                 output.innerHTML = `
                     <div class="space-y-4">
@@ -1149,9 +1142,9 @@
                 `;
             }
             else if (currentSearchMode === 'competition') {
-                const compName = document.getElementById('searchInput')?.value;
-                const comp = (appData.competitions || []).find(c => c.name === compName);
-                const res = (appData.results || []).find(r => r.event === compName);
+                const compName = document.getElementById('searchInputFilter')?.value;
+                const comp = appData.competitions.find(c => c.name === compName);
+                const res = appData.results.find(r => r.event === compName);
 
                 if(!comp) { output.innerHTML = `<p class="text-xs text-gray-500">Select a competition to view status.</p>`; return; }
 
@@ -1176,9 +1169,9 @@
                 `;
             }
             else if (currentSearchMode === 'date') {
-                const selectedDate = document.getElementById('searchInput')?.value;
+                const selectedDate = document.getElementById('searchInputFilter')?.value;
                 if(!selectedDate) { output.innerHTML = `<p class="text-xs text-gray-500">Select a date above to view events.</p>`; return; }
-                const matches = (appData.competitions || []).filter(c => c.date === selectedDate);
+                const matches = appData.competitions.filter(c => c.date === selectedDate);
 
                 output.innerHTML = matches.map(c => `
                     <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-2 flex justify-between items-center">
@@ -1192,9 +1185,11 @@
             }
         };
 
-        // STATISTICS ENGINE
         function renderStats() {
-            const sorted = Object.entries(appData.houses || {}).sort((a,b) => b[1].points - a[1].points);
+            const statsView = document.getElementById('view-stats');
+            if (statsView && statsView.classList.contains('hidden')) return;
+
+            const sorted = Object.entries(appData.houses).sort((a,b) => b[1].points - a[1].points);
             const bestKey = sorted.length ? sorted[0][0] : 'Red';
             const bestStyle = houseColorMap[bestKey] || houseColorMap['Red'];
 
@@ -1204,16 +1199,16 @@
                 bestEl.className = `text-2xl font-black mt-2 ${bestStyle.text}`;
             }
 
-            const totalWins = Object.values(appData.houses || {}).reduce((acc, h) => acc + (h.wins || 0), 0);
+            const totalWins = Object.values(appData.houses).reduce((acc, h) => acc + (h.wins || 0), 0);
             if(document.getElementById('statTotalWins')) document.getElementById('statTotalWins').innerText = `${totalWins} Victories`;
-            if(document.getElementById('statTotalStudents')) document.getElementById('statTotalStudents').innerText = `${(appData.students || []).length} Enrolled`;
-            if(document.getElementById('statTotalEvents')) document.getElementById('statTotalEvents').innerText = `${(appData.competitions || []).length} Events`;
+            if(document.getElementById('statTotalStudents')) document.getElementById('statTotalStudents').innerText = `${appData.students.length} Enrolled`;
+            if(document.getElementById('statTotalEvents')) document.getElementById('statTotalEvents').innerText = `${appData.competitions.length} Events`;
 
             const labels = ['Red', 'Blue', 'Green', 'Yellow'];
             const houseHexColors = labels.map(k => houseColorMap[k].hex);
             
             const pointsData = labels.map(k => appData.houses[k] ? appData.houses[k].points : 0);
-            const partData = labels.map(k => (appData.students || []).filter(s => s.house === k).length);
+            const partData = labels.map(k => appData.students.filter(s => s.house === k).length);
 
             Chart.defaults.color = '#9ca3af';
             Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
@@ -1240,8 +1235,8 @@
 
             const matrixBody = document.getElementById('eventPointsMatrixBody');
             if(matrixBody) {
-                matrixBody.innerHTML = (appData.competitions || []).map(c => {
-                    const res = (appData.results || []).find(r => r.event === c.name);
+                matrixBody.innerHTML = appData.competitions.map(c => {
+                    const res = appData.results.find(r => r.event === c.name);
                     const getPts = (h) => {
                         if (!res) return 0;
                         if (res.p1 === h) return res.pts1;
@@ -1269,18 +1264,17 @@
             }
         }
 
-        // NOTICE & CERTIFICATE HUB
         function renderCertificatesHub() {
             const noticeSelect = document.getElementById('noticeResultSelect');
             const certSelect = document.getElementById('certStudentSelect');
 
             if (noticeSelect) {
-                const resOpts = (appData.results || []).map((r, i) => `<option value="${i}">${r.event} (${r.eventDate})</option>`).join('');
+                const resOpts = appData.results.map((r, i) => `<option value="${i}">${r.event} (${r.eventDate})</option>`).join('');
                 noticeSelect.innerHTML = resOpts || `<option value="">No Declared Results Available</option>`;
             }
 
             if (certSelect) {
-                const studOpts = (appData.students || []).map((s, i) => `<option value="${i}">${s.name} (${s.house} House - ${s.competition})</option>`).join('');
+                const studOpts = appData.students.map((s, i) => `<option value="${i}">${s.name} (${s.house} House - ${s.competition})</option>`).join('');
                 certSelect.innerHTML = studOpts || `<option value="">No Students Available</option>`;
             }
 
@@ -1293,7 +1287,7 @@
             const preview = document.getElementById('noticePreviewBox');
             if(!preview) return;
 
-            if (idx === '' || !(appData.results || [])[idx]) {
+            if (idx === '' || !appData.results[idx]) {
                 preview.innerText = 'No published competition results available.';
                 return;
             }
@@ -1303,19 +1297,27 @@
 
         window.renderCertificatePreview = () => {
             const idx = document.getElementById('certStudentSelect')?.value;
-            if (idx === '' || !(appData.students || [])[idx]) return;
+            const certContainer = document.getElementById('certificateContainer');
+            
+            if (idx === '' || !appData.students[idx]) {
+                if (certContainer) certContainer.style.display = 'none';
+                return;
+            } else {
+                if (certContainer) certContainer.style.display = 'block';
+            }
+            
             const s = appData.students[idx];
-
             if(document.getElementById('certStudentName')) document.getElementById('certStudentName').innerText = s.name;
             if(document.getElementById('certStudentHouse')) document.getElementById('certStudentHouse').innerText = `${s.house} House`;
             if(document.getElementById('certEventName')) document.getElementById('certEventName').innerText = s.competition;
             if(document.getElementById('certDate')) document.getElementById('certDate').innerText = new Date().toLocaleDateString();
         };
 
-        // Initial setup
         window.addEventListener('DOMContentLoaded', () => {
+            ensureDataStructure();
             renderAll();
         });
     </script>
 </body>
 </html>
+```[cite: 4]
