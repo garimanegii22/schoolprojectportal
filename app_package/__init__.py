@@ -57,11 +57,9 @@ def create_app(config_class=Config):
         
         # Automatically create a default admin if none exists
         from app_package.models import Admin
-        from werkzeug.security import generate_password_hash
-        
         if not Admin.query.first():
-            hashed_password = generate_password_hash('admin123')
-            admin_user = Admin(username='admin', password=hashed_password)
+            admin_user = Admin(username='admin')
+            admin_user.set_password('admin123')
             db.session.add(admin_user)
             db.session.commit()
             
