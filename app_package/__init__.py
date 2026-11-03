@@ -55,6 +55,21 @@ def create_app(config_class=Config):
 
     with app.app_context():
         db.create_all()
+	db.init_app(app)
+    login_manager.init_app(app)
+    
+    with app.app_context():
+        db.create_all()
+        from app_package.models import Admin
+        from werkzeug.security import generate_password_hash
+        
+        # Automatically create a default admin if none exists
+        if not Admin.query.first():
+            hashed_password = generate_password_hash('admin123')
+            # Adjust 'username' or 'password' field names if your Admin model uses different names
+            admin_user = Admin(username='admin', password=hashed_password)
+            db.session.add(admin_user)
+            db.session.commit()
         # Seed default houses if none exist
         from app_package.models import House
         if House.query.count() == 0:
