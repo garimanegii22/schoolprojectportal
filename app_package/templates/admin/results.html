@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Results & Podium — Admin Control Center{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    
+    <!-- Top Action Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h2 class="text-2xl font-black text-white flex items-center gap-2">
+                <i class="fa-solid fa-trophy text-amber-400"></i> Podium Results & Participant Assignment
+            </h2>
+            <p class="text-gray-400 text-xs mt-1">Record house wins, assign participants to events, and update live standings</p>
+        </div>
+        <a href="{{ url_for('admin_bp.dashboard') }}" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm font-semibold transition border border-white/10 flex items-center gap-2">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- Left: Enter Podium Result -->
+        <div class="glass p-6 rounded-3xl border border-white/10 space-y-5">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-award text-amber-400"></i> Record Competition Winner / Podium
+            </h3>
+
+            <form method="POST" action="{{ url_for('admin_bp.results') }}" class="space-y-4">
+                {{ result_form.hidden_tag() }}
+                <input type="hidden" name="submit_result" value="1">
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Select Competition</label>
+                    {{ result_form.competition_id(class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500") }}
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Position / Rank</label>
+                        {{ result_form.position(class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500") }}
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Winning House</label>
+                        {{ result_form.house_id(class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500") }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Points Awarded</label>
+                    {{ result_form.points_awarded(class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500", placeholder="e.g. 10") }}
+                </div>
+
+                {{ result_form.submit(class="w-full py-3.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-semibold text-sm transition shadow-lg shadow-amber-600/30 cursor-pointer") }}
+            </form>
+        </div>
+
+        <!-- Right: Assign Student to Event -->
+        <div class="glass p-6 rounded-3xl border border-white/10 space-y-5">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-user-check text-indigo-400"></i> Assign Student Participant to Event
+            </h3>
+
+            <form method="POST" action="{{ url_for('admin_bp.assign_participant') }}" class="space-y-4">
+                {{ assign_form.hidden_tag() }}
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Select Student</label>
+                    {{ assign_form.student_id(class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500") }}
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Select Competition Event</label>
+                    {{ assign_form.competition_id(class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500") }}
+                </div>
+
+                {{ assign_form.submit(class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold text-sm transition shadow-lg shadow-indigo-600/30 cursor-pointer") }}
+            </form>
+        </div>
+
+    </div>
+
+    <!-- Bottom: Results Table -->
+    <div class="glass p-6 rounded-3xl border border-white/10 space-y-4">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-list-ol text-teal-400"></i> Recorded Competition Podium Logs
+        </h3>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-gray-300">
+                <thead class="bg-white/5 text-gray-400 uppercase text-xs">
+                    <tr>
+                        <th class="p-3 rounded-l-xl">Competition</th>
+                        <th class="p-3">Rank</th>
+                        <th class="p-3">House</th>
+                        <th class="p-3">Points</th>
+                        <th class="p-3 rounded-r-xl text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    {% if results %}
+                        {% for r in results %}
+                        <tr class="hover:bg-white/5 transition">
+                            <td class="p-3 font-semibold text-white">{{ r.competition.name }}</td>
+                            <td class="p-3"><span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-bold text-xs">{{ r.position }}</span></td>
+                            <td class="p-3 font-bold text-white">{{ r.house.emoji }} {{ r.house.name }} House</td>
+                            <td class="p-3 font-bold text-emerald-400">+{{ r.points_awarded }} pts</td>
+                            <td class="p-3 text-right">
+                                <form method="POST" action="{{ url_for('admin_bp.delete_result', result_id=r.id) }}" onsubmit="return confirm('Are you sure you want to delete this result? The house points will be adjusted.');" class="inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="px-3 py-1 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white rounded-lg border border-red-500/20 text-xs font-bold transition">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="5" class="p-6 text-center text-gray-500 italic">No podium results recorded yet.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

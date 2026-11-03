@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Control Center — School House Portal{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    
+    <!-- Admin Quick Stats Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h2 class="text-2xl font-black text-white flex items-center gap-2">
+                <i class="fa-solid fa-gauge text-indigo-400"></i> Admin Control Panel
+            </h2>
+            <p class="text-gray-400 text-xs mt-1">Logged in as: <strong class="text-white">{{ current_user.username }}</strong></p>
+        </div>
+
+        <div class="flex gap-3 flex-wrap">
+            <a href="{{ url_for('admin_bp.students') }}" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 shadow-lg shadow-emerald-600/20">
+                <i class="fa-solid fa-users"></i> Students Management
+            </a>
+            <a href="{{ url_for('admin_bp.events') }}" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 shadow-lg shadow-indigo-600/20">
+                <i class="fa-solid fa-calendar-plus"></i> Events Management
+            </a>
+            <a href="{{ url_for('admin_bp.results') }}" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 shadow-lg shadow-amber-600/20">
+                <i class="fa-solid fa-trophy"></i> Results & Podium
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="glass p-6 rounded-3xl border border-white/10 flex items-center justify-between">
+            <div>
+                <span class="text-xs text-gray-400 uppercase font-bold tracking-wider">Registered Students</span>
+                <h3 class="text-3xl font-black text-white mt-1">{{ student_count }}</h3>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-xl">
+                👨‍🎓
+            </div>
+        </div>
+
+        <div class="glass p-6 rounded-3xl border border-white/10 flex items-center justify-between">
+            <div>
+                <span class="text-xs text-gray-400 uppercase font-bold tracking-wider">Active Events</span>
+                <h3 class="text-3xl font-black text-white mt-1">{{ comp_count }}</h3>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center text-xl">
+                🏆
+            </div>
+        </div>
+
+        <div class="glass p-6 rounded-3xl border border-white/10 flex items-center justify-between">
+            <div>
+                <span class="text-xs text-gray-400 uppercase font-bold tracking-wider">Results Recorded</span>
+                <h3 class="text-3xl font-black text-white mt-1">{{ results_count }}</h3>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center text-xl">
+                🥇
+            </div>
+        </div>
+    </div>
+
+    <!-- House Standings Snapshot -->
+    <div class="glass p-6 rounded-3xl border border-white/10 space-y-4">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-ranking-star text-indigo-400"></i> Current Standings Summary
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {% for house in houses %}
+            <div class="p-4 rounded-2xl bg-white/5 border {{ house.border_class }} flex justify-between items-center">
+                <div>
+                    <h4 class="font-bold text-white">{{ house.emoji }} {{ house.name }}</h4>
+                    <span class="text-xs text-gray-400">Wins: <strong class="text-white">{{ house.total_wins }}</strong></span>
+                </div>
+                <span class="text-2xl font-black text-white">{{ house.total_points }} <span class="text-xs text-gray-400">pts</span></span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
