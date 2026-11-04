@@ -7,14 +7,18 @@ public_bp = Blueprint('public_bp', __name__)
 
 @public_bp.route('/')
 def index():
-    # Retrieve houses ordered by total points descending for podium hierarchy
-    houses = House.query.order_by(House.total_points.desc()).all()
+    # Fetch all houses and sort them in Python by total_points property descending
+    houses = House.query.all()
+    houses.sort(key=lambda h: h.total_points or 0, reverse=True)
+    
     recent_competitions = Competition.query.order_by(Competition.date.desc()).limit(5).all()
     return render_template('public/index.html', houses=houses, recent_competitions=recent_competitions)
 
 @public_bp.route('/export-podium-certificate')
 def export_podium_certificate():
-    houses = House.query.order_by(House.total_points.desc()).all()
+    houses = House.query.all()
+    houses.sort(key=lambda h: h.total_points or 0, reverse=True)
+    
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"House_Championship_Standings_{timestamp}.html"
 
