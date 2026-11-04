@@ -7,110 +7,56 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
-
-    <!-- Admin Header -->
     <nav class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center shadow-md">
         <h1 class="text-lg font-bold text-white">Admin Dashboard — Add Event</h1>
         <a href="{{ url_for('admin_bp.dashboard') }}" class="px-3.5 py-1.5 text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl transition font-medium">
             &larr; Back to Dashboard
         </a>
     </nav>
-
     <main class="flex-1 max-w-xl w-full mx-auto px-4 py-12">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
             <h2 class="text-2xl font-black text-white mb-2">Create New Competition</h2>
-            <p class="text-xs text-slate-400 mb-6">Fill in the event details below to record it in the championship database.</p>
-
+            <p class="text-xs text-slate-400 mb-6">Fill in event details below to record it in the database.</p>
             <form method="POST" action="" class="space-y-5">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-
-                <!-- Event Name -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Event Name</label>
-                    <input type="text" name="name" required placeholder="e.g., Senior Football Final, Inter-House Quiz"
-                           class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 transition">
+                    <input type="text" name="name" required placeholder="e.g., Senior Football Final"
+                           class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
                 </div>
-
-                <!-- Category Dropdown with Custom Option Support -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Category</label>
-                    <select id="category-select" name="category" required onchange="handleCategoryChange(this)"
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
+                    <select name="category" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
                         <option value="" disabled selected>Select category...</option>
                         <option value="Sports">Sports</option>
                         <option value="Academics">Academics</option>
                         <option value="Cultural">Cultural</option>
-                        <option value="Custom">Custom (Manual Entry)</option>
                     </select>
                 </div>
-
-                <!-- Custom Category Input (Hidden by default) -->
-                <div id="custom-category-wrapper" class="hidden">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Custom Category Name</label>
-                    <input type="text" id="custom-category-input" placeholder="Type custom category..."
-                           class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 transition">
-                </div>
-
-                <!-- Event Date (Clean Input) -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Event Date</label>
-                    <input type="date" name="date" required
-                           class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
+                    <input type="date" name="date" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
                 </div>
-
-                <!-- Max Points with Stepper (+5 / -5) -->
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Max Points (5-point Stepper)</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Max Points</label>
                     <div class="flex items-center gap-3">
-                        <button type="button" onclick="adjustPoints(-5)" 
-                                class="bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-white font-black px-4 py-3 rounded-xl border border-slate-700 text-lg transition">
-                            -5
-                        </button>
-                        <input type="number" id="max_points" name="max_points" value="50" min="5" step="5" required
-                               class="w-full text-center bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-lg font-black focus:outline-none focus:border-blue-500 transition">
-                        <button type="button" onclick="adjustPoints(5)" 
-                                class="bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-white font-black px-4 py-3 rounded-xl border border-slate-700 text-lg transition">
-                            +5
-                        </button>
+                        <button type="button" onclick="adjustPoints(-5)" class="bg-slate-800 hover:bg-slate-700 text-white font-black px-4 py-3 rounded-xl border border-slate-700 text-lg transition">-5</button>
+                        <input type="number" id="max_points" name="max_points" value="50" min="5" step="5" required class="w-full text-center bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-lg font-black focus:outline-none focus:border-blue-500 transition">
+                        <button type="button" onclick="adjustPoints(5)" class="bg-slate-800 hover:bg-slate-700 text-white font-black px-4 py-3 rounded-xl border border-slate-700 text-lg transition">+5</button>
                     </div>
                 </div>
-
-                <!-- Form Actions -->
                 <div class="pt-4 flex gap-3">
-                    <a href="{{ url_for('admin_bp.dashboard') }}" 
-                       class="w-1/2 text-center bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-semibold transition">
-                        Cancel
-                    </a>
-                    <button type="submit" 
-                            class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-semibold shadow-lg shadow-blue-600/30 transition">
-                        Save & Add Event
-                    </button>
+                    <a href="{{ url_for('admin_bp.dashboard') }}" class="w-1/2 text-center bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-semibold transition">Cancel</a>
+                    <button type="submit" class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-semibold transition">Save & Add Event</button>
                 </div>
             </form>
         </div>
     </main>
-
     <script>
         function adjustPoints(delta) {
             const input = document.getElementById('max_points');
             let val = parseInt(input.value) || 0;
-            val = Math.max(5, val + delta);
-            input.value = val;
-        }
-
-        function handleCategoryChange(select) {
-            const wrapper = document.getElementById('custom-category-wrapper');
-            const customInput = document.getElementById('custom-category-input');
-            if (select.value === 'Custom') {
-                wrapper.classList.remove('hidden');
-                customInput.setAttribute('name', 'category');
-                select.removeAttribute('name');
-                customInput.focus();
-            } else {
-                wrapper.classList.add('hidden');
-                customInput.removeAttribute('name');
-                select.setAttribute('name', 'category');
-            }
+            input.value = Math.max(5, val + delta);
         }
     </script>
 </body>

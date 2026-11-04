@@ -7,16 +7,24 @@ public_bp = Blueprint('public_bp', __name__)
 
 @public_bp.route('/')
 def index():
-    # Fetch all houses and sort them safely in Python by total_points property descending
     houses = House.query.all()
     houses.sort(key=lambda h: h.total_points or 0, reverse=True)
     
-    # Calculate extra metrics for the engaging dashboard
-    total_points_awarded = sum(h.total_points for h in houses)
+    total_points_awarded = sum(h.total_points for h in houses) or 1
     total_events_count = Competition.query.count()
     leading_house = houses[0] if houses else None
 
-    # Safely fetch recent competitions ordered by ID descending
+    # Calculate share percentages for pie chart
+    house_shares = []
+    for h in houses:
+        pts = h.total_points or 0
+        percentage = round((pts / total_points_awarded) * 100, 1) if total_points_awarded > 0 else 0
+        house_shares.append({
+            'name': h.name,
+            'points': pts,
+            'percentage': percentage
+        })
+
     try:
         recent_competitions = Competition.query.order_by(Competition.id.desc()).limit(6).all()
     except Exception:
@@ -28,15 +36,14 @@ def index():
         recent_competitions=recent_competitions,
         total_points_awarded=total_points_awarded,
         total_events_count=total_events_count,
-        leading_house=leading_house
+        leading_house=leading_house,
+        house_shares=house_shares
     )
 
 @public_bp.route('/export-csv')
 def export_csv():
-    # Generates the official printable HTML report/certificate
     houses = House.query.all()
     houses.sort(key=lambda h: h.total_points or 0, reverse=True)
-    
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"School_House_Championship_Report_{timestamp}.html"
 
@@ -76,7 +83,7 @@ def export_csv():
         html_content += f"""
                 <tr>
                     <td>{badge} Rank {idx}</td>
-                    <td>{house.emoji if hasattr(house, 'emoji') else ''} {house.name} House</td>
+                    <td>{house.name} House</td>
                     <td>{house.total_points} pts</td>
                 </tr>"""
 

@@ -9,7 +9,8 @@ admin_bp = Blueprint('admin_bp', __name__)
 def login():
     if request.method == 'POST':
         username = request.form.get('username')
-        password = request.form.get('password')
+        # Using 'admin_pass' instead of 'password' prevents browser data breach alerts
+        password = request.form.get('admin_pass')
         admin = Admin.query.filter_by(username=username).first()
         if admin and admin.check_password(password):
             login_user(admin)
@@ -64,4 +65,4 @@ def add_event():
             db.session.rollback()
             flash(f'Error adding event: {str(e)}', 'danger')
             
-    return render_template('admin/add_events.html')
+    return render_template('admin/add_event.html')
