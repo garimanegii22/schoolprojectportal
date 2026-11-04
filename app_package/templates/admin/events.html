@@ -3,69 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Competition Event - Admin</title>
+    <title>Add Competition Event - Admin Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen p-4 sm:p-8">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
 
-    <div class="max-w-xl mx-auto bg-slate-800 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-xl">
-        <h2 class="text-2xl font-bold text-white mb-6">Add New Competition Event</h2>
+    <!-- Admin Nav Header -->
+    <nav class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold text-white">Admin Dashboard - Add Event</h1>
+        <a href="{{ url_for('admin_bp.dashboard') }}" class="px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg transition font-medium">
+            Back to Dashboard
+        </a>
+    </nav>
 
-        <form method="POST" action="" class="space-y-5">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <main class="flex-1 max-w-xl w-full mx-auto px-4 py-10">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-xl">
+            <h2 class="text-2xl font-bold text-white mb-6">Create New Competition Event</h2>
 
-            <!-- Event Name -->
-            <div>
-                <label class="block text-sm font-medium text-slate-300 mb-1">Event Name</label>
-                <input type="text" name="name" required placeholder="e.g., Senior Football Final"
-                       class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
-            </div>
+            <form method="POST" action="" class="space-y-5">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
-            <!-- Category -->
-            <div>
-                <label class="block text-sm font-medium text-slate-300 mb-1">Category</label>
-                <input type="text" name="category" required placeholder="e.g., Sports, Cultural, Academics"
-                       class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
-            </div>
+                <!-- Event Name -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Event Name</label>
+                    <input type="text" name="name" required placeholder="e.g., Inter-House Quiz / Football Match"
+                           class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
+                </div>
 
-            <!-- Manual & Calendar Date Selection -->
-            <div>
-                <label class="block text-sm font-medium text-slate-300 mb-1">Event Date (Type or Pick Calendar)</label>
-                <input type="date" name="date" required step="any"
-                       class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 appearance-none">
-                <p class="text-xs text-slate-400 mt-1">You can directly type using your keyboard or click the calendar icon.</p>
-            </div>
+                <!-- Category with Select Options & Manual Entry -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Category (Select or type manual entry)</label>
+                    <input type="text" name="category" list="category-options" required placeholder="Select or type category..."
+                           class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
+                    <datalist id="category-options">
+                        <option value="Sports">
+                        <option value="Academics">
+                        <option value="Cultural">
+                    </datalist>
+                    <p class="text-xs text-slate-400 mt-1">Choose from Sports, Academics, Cultural, or type your own custom category.</p>
+                </div>
 
-            <!-- Max Points Shifter (+5 / -5) -->
-            <div>
-                <label class="block text-sm font-medium text-slate-300 mb-1">Max Points (5-point Stepper)</label>
-                <div class="flex items-center gap-2">
-                    <button type="button" onclick="adjustPoints(-5)" 
-                            class="bg-slate-700 hover:bg-slate-600 active:bg-slate-500 text-white font-bold px-4 py-2.5 rounded-lg border border-slate-600 text-lg transition">
-                        -5
-                    </button>
-                    <input type="number" id="max_points" name="max_points" value="50" min="5" step="5" required
-                           class="w-full text-center bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-lg font-bold focus:outline-none focus:border-blue-500">
-                    <button type="button" onclick="adjustPoints(5)" 
-                            class="bg-slate-700 hover:bg-slate-600 active:bg-slate-500 text-white font-bold px-4 py-2.5 rounded-lg border border-slate-600 text-lg transition">
-                        +5
+                <!-- Event Date -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Event Date</label>
+                    <input type="date" name="date" required
+                           class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
+                </div>
+
+                <!-- Max Points with Stepper (+5 / -5) -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Max Points (5-point Stepper)</label>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="adjustPoints(-5)" 
+                                class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-4 py-2.5 rounded-lg border border-slate-600 text-lg transition">
+                            -5
+                        </button>
+                        <input type="number" id="max_points" name="max_points" value="50" min="5" step="5" required
+                               class="w-full text-center bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-lg font-bold focus:outline-none focus:border-blue-500">
+                        <button type="button" onclick="adjustPoints(5)" 
+                                class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-4 py-2.5 rounded-lg border border-slate-600 text-lg transition">
+                            +5
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="pt-4 flex gap-3">
+                    <a href="{{ url_for('admin_bp.dashboard') }}" 
+                       class="w-1/2 text-center bg-slate-700 hover:bg-slate-600 text-slate-200 py-2.5 rounded-lg font-medium transition">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-lg font-medium transition">
+                        Add Event
                     </button>
                 </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="pt-4 flex gap-3">
-                <a href="{{ url_for('admin_bp.dashboard') }}" 
-                   class="w-1/2 text-center bg-slate-700 hover:bg-slate-600 text-slate-200 py-2.5 rounded-lg font-medium transition">
-                    Cancel
-                </a>
-                <button type="submit" 
-                        class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-lg font-medium transition">
-                    Save Event
-                </button>
-            </div>
-        </form>
-    </div>
+            </form>
+        </div>
+    </main>
 
     <script>
         function adjustPoints(delta) {
