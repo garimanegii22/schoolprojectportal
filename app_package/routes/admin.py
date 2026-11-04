@@ -54,9 +54,9 @@ def register_student():
             return redirect(url_for('admin_bp.register_student'))
 
         try:
-            # Fixed: Using 'name' to match ParticipantRegistration model column
+            # Fixed: Using 'student_name' as required by your ParticipantRegistration model
             new_reg = ParticipantRegistration(
-                name=student_name.strip(),
+                student_name=student_name.strip(),
                 house_id=house_id,
                 competition_id=competition_id
             )
@@ -78,6 +78,7 @@ def declare_result():
     if request.method == 'POST':
         competition_id = request.form.get('competition_id', type=int)
         house_id = request.form.get('house_id', type=int)
+        position = request.form.get('position', type=int, default=1)
         points_awarded = request.form.get('points_awarded', type=int)
 
         if not competition_id or not house_id or points_awarded is None:
@@ -85,10 +86,11 @@ def declare_result():
             return redirect(url_for('admin_bp.declare_result'))
 
         try:
-            # Record the result
+            # Fixed: Included 'position' to satisfy the results table NOT NULL constraint
             new_result = Result(
                 competition_id=competition_id,
                 house_id=house_id,
+                position=position,
                 points_awarded=points_awarded
             )
             db.session.add(new_result)

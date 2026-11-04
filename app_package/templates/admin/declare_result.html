@@ -19,7 +19,7 @@
     <main class="flex-1 max-w-xl w-full mx-auto px-4 py-12">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
             <h2 class="text-2xl font-black text-white mb-2">Award Competition Points</h2>
-            <p class="text-xs text-slate-400 mb-6">Select a competition and house to assign points and update the championship leaderboard.</p>
+            <p class="text-xs text-slate-400 mb-6">Select competition, house, and position to assign points and update the leaderboard.</p>
 
             <form method="POST" action="" class="space-y-5">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
@@ -43,6 +43,17 @@
                         {% for house in houses %}
                             <option value="{{ house.id }}">{{ house.name }} House</option>
                         {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Position Selection -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Achieved Position</label>
+                    <select name="position" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
+                        <option value="1" selected>1st Place</option>
+                        <option value="2">2nd Place</option>
+                        <option value="3">3rd Place</option>
+                        <option value="4">4th Place</option>
                     </select>
                 </div>
 
