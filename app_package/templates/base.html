@@ -1,98 +1,25 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}School House Championship Portal{% endblock %}</title>
-    <!-- Tailwind CSS -->
+    <title>{% block title %}School House Championship{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: { colors: { darkbg: '#07090e', cardbg: '#111827' } }
-            }
-        }
-    </script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #07090e; color: #f3f4f6; }
-        .glass { background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .glow-red { box-shadow: 0 0 25px rgba(239, 68, 68, 0.15); }
-        .glow-blue { box-shadow: 0 0 25px rgba(59, 130, 246, 0.15); }
-        .glow-green { box-shadow: 0 0 25px rgba(16, 185, 129, 0.15); }
-        .glow-yellow { box-shadow: 0 0 25px rgba(245, 158, 11, 0.15); }
-    </style>
-    {% block extra_head %}{% endblock %}
 </head>
-<body class="min-h-screen p-4 md:p-8 flex flex-col justify-between">
-
-    <div class="max-w-7xl mx-auto w-full space-y-8">
-        
-        <!-- Header -->
-        <header class="glass p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-white/10 shadow-2xl">
-            <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 text-2xl">
-                    🏆
-                </div>
-                <div>
-                    <h1 class="text-2xl md:text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-indigo-400">
-                        School House Championship Portal
-                    </h1>
-                    <p class="text-gray-400 text-xs md:text-sm mt-0.5">Python Flask & MySQL Relational Backend</p>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-3 flex-wrap">
-                <div class="px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Connected to MySQL
-                </div>
-                <a href="{{ url_for('public_bp.export_csv') }}" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 shadow-lg shadow-indigo-600/25">
-                    <i class="fa-solid fa-file-csv"></i> Export CSV
-                </a>
-                {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('admin_bp.dashboard') }}" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 shadow-lg shadow-purple-600/25">
-                        <i class="fa-solid fa-gauge"></i> Admin Panel
-                    </a>
-                    <a href="{{ url_for('admin_bp.logout') }}" class="px-3 py-2.5 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 border border-red-500/30">
-                        <i class="fa-solid fa-right-from-bracket"></i> Logout
-                    </a>
-                {% else %}
-                    <a href="{{ url_for('admin_bp.login') }}" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm font-semibold transition flex items-center gap-2 border border-white/10">
-                        <i class="fa-solid fa-lock"></i> Teacher Login
-                    </a>
-                {% endif %}
-            </div>
-        </header>
-
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="space-y-2">
-                    {% for category, message in messages %}
-                        <div class="p-4 rounded-2xl glass border {% if category == 'danger' %}border-red-500/30 text-red-300 bg-red-500/10{% elif category == 'success' %}border-emerald-500/30 text-emerald-300 bg-emerald-500/10{% else %}border-indigo-500/30 text-indigo-300 bg-indigo-500/10{% endif %} flex items-center justify-between">
-                            <span>{{ message }}</span>
-                            <button onclick="this.parentElement.remove()" class="text-xs opacity-70 hover:opacity-100"><i class="fa-solid fa-xmark"></i></button>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
+    <nav class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center shadow-md">
+        <a href="{{ url_for('public_bp.index') }}" class="text-lg font-black text-white">🏆 House Portal</a>
+        <div class="flex items-center gap-3">
+            <a href="{{ url_for('public_bp.export_csv') }}" class="px-3.5 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl font-semibold transition">
+                Export Report
+            </a>
+            <a href="{{ url_for('admin_bp.login') }}" class="px-3.5 py-1.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold transition">
+                Admin Portal
+            </a>
+        </div>
+    </nav>
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-8">
         {% block content %}{% endblock %}
-
-    </div>
-
-    <footer class="max-w-7xl mx-auto w-full text-center text-xs text-gray-500 py-8 mt-12 border-t border-white/5">
-        School House Championship Management System • Powered by Python Flask, SQLAlchemy & MySQL
-    </footer>
-
-    {% block extra_js %}{% endblock %}
+    </main>
 </body>
 </html>
