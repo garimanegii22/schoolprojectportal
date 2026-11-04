@@ -9,8 +9,7 @@ admin_bp = Blueprint('admin_bp', __name__)
 def login():
     if request.method == 'POST':
         username = request.form.get('username')
-        # Using 'admin_pass' instead of 'password' prevents browser data breach alerts
-        password = request.form.get('admin_pass')
+        password = request.form.get('admin_pass')  # Matches custom login input to bypass browser warnings
         admin = Admin.query.filter_by(username=username).first()
         if admin and admin.check_password(password):
             login_user(admin)
@@ -45,16 +44,18 @@ def add_event():
     if request.method == 'POST':
         name = request.form.get('name')
         category = request.form.get('category')
+        event_date = request.form.get('date')  # Fixed: Captures event date to satisfy database NOT NULL constraint
         max_points = request.form.get('max_points', type=int)
         
-        if not name or not category or not max_points:
-            flash('All fields are required.', 'danger')
+        if not name or not category or not event_date or not max_points:
+            flash('All fields including date are required.', 'danger')
             return redirect(url_for('admin_bp.add_event'))
             
         try:
             new_competition = Competition(
                 name=name.strip(),
                 category=category.strip(),
+                event_date=event_date,
                 max_points=max_points
             )
             db.session.add(new_competition)

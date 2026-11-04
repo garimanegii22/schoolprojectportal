@@ -14,7 +14,7 @@ def index():
     total_events_count = Competition.query.count()
     leading_house = houses[0] if houses else None
 
-    # Calculate share percentages for pie chart
+    # Calculate share percentages for point distribution chart
     house_shares = []
     for h in houses:
         pts = h.total_points or 0

@@ -69,10 +69,16 @@
             <h3 class="text-xl font-black text-white mb-4">Current House Points Summary</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {% for house in houses %}
+                    {% set h_name = house.name | lower %}
+                    {% if 'blue' in h_name %}{% set text_color = 'text-blue-400' %}
+                    {% elif 'red' in h_name %}{% set text_color = 'text-red-400' %}
+                    {% elif 'green' in h_name %}{% set text_color = 'text-emerald-400' %}
+                    {% elif 'yellow' in h_name %}{% set text_color = 'text-amber-400' %}
+                    {% else %}{% set text_color = 'text-white' %}{% endif %}
+
                     <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5">
-                        <div class="flex items-center space-x-2 mb-2">
-                            <span class="text-2xl">{{ house.emoji }}</span>
-                            <h4 class="font-bold text-white text-base">{{ house.name }}</h4>
+                        <div class="mb-2">
+                            <h4 class="font-bold {{ text_color }} text-base">{{ house.name }} House</h4>
                         </div>
                         <div class="flex justify-between items-baseline pt-2 border-t border-slate-800">
                             <span class="text-xs text-slate-400 uppercase font-semibold">Points</span>
@@ -91,7 +97,7 @@
                     <div class="py-3 flex justify-between items-center text-sm">
                         <div>
                             <span class="font-bold text-slate-200">{{ comp.name }}</span>
-                            <span class="text-xs text-slate-400 ml-2">({{ comp.category }})</span>
+                            <span class="text-xs text-slate-400 ml-2">({{ comp.category }} - {{ comp.event_date }})</span>
                         </div>
                         <span class="text-xs bg-slate-800 border border-slate-700 px-3 py-1 rounded-lg text-slate-300 font-semibold">
                             Max: {{ comp.max_points }} pts
