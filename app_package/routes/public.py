@@ -19,8 +19,9 @@ def index():
         
     return render_template('public/index.html', houses=houses, recent_competitions=recent_competitions)
 
-@public_bp.route('/export-podium-certificate')
-def export_podium_certificate():
+@public_bp.route('/export-csv')
+def export_csv():
+    # Matches base.html expected endpoint 'public_bp.export_csv'
     houses = House.query.all()
     houses.sort(key=lambda h: h.total_points or 0, reverse=True)
     
@@ -35,22 +36,19 @@ def export_podium_certificate():
     <title>Official House Championship Results</title>
     <style>
         body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #f8fafc; padding: 40px; text-align: center; }}
-        .cert-card {{ border: 3px solid #e2e8f0; border-radius: 20px; padding: 40px; max-width: 800px; margin: 0 auto; background: #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }}
-        h1 {{ color: #fbbf24; font-size: 32px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; }}
+        .cert-card {{ border: 2px solid #334155; border-radius: 16px; padding: 40px; max-width: 800px; margin: 0 auto; background: #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }}
+        h1 {{ color: #38bdf8; font-size: 28px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }}
         h3 {{ color: #94a3b8; font-weight: 400; margin-top: 0; }}
         .standings-table {{ width: 100%; border-collapse: collapse; margin-top: 30px; text-align: left; }}
         .standings-table th {{ background: #334155; color: #f1f5f9; padding: 12px; border-bottom: 2px solid #475569; }}
-        .standings-table td {{ padding: 14px; border-bottom: 1px solid #334155; font-size: 18px; }}
-        .rank-1 {{ color: #fbbf24; font-weight: bold; font-size: 20px; }}
-        .rank-2 {{ color: #cbd5e1; font-weight: bold; }}
-        .rank-3 {{ color: #b45309; font-weight: bold; }}
+        .standings-table td {{ padding: 14px; border-bottom: 1px solid #334155; font-size: 16px; }}
         .footer {{ margin-top: 40px; font-size: 12px; color: #64748b; }}
     </style>
 </head>
 <body>
     <div class="cert-card">
-        <h1>🏆 Inter-House Championship Standings</h1>
-        <h3>Official Standings Certificate</h3>
+        <h1>Inter-House Championship Standings</h1>
+        <h3>Official Result Summary</h3>
         <hr style="border-color: #334155; margin: 20px 0;">
         <table class="standings-table">
             <thead>
@@ -63,10 +61,9 @@ def export_podium_certificate():
             <tbody>
 """
     for idx, house in enumerate(houses, start=1):
-        rank_class = f"rank-{idx}" if idx <= 3 else ""
         badge = "🥇 " if idx == 1 else ("🥈 " if idx == 2 else ("🥉 " if idx == 3 else f"#{idx} "))
         html_content += f"""
-                <tr class="{rank_class}">
+                <tr>
                     <td>{badge} Rank {idx}</td>
                     <td>{house.emoji if hasattr(house, 'emoji') else ''} {house.name} House</td>
                     <td>{house.total_points} pts</td>
