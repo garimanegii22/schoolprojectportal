@@ -7,11 +7,16 @@ public_bp = Blueprint('public_bp', __name__)
 
 @public_bp.route('/')
 def index():
-    # Fetch all houses and sort them in Python by total_points property descending
+    # Fetch all houses and sort them safely in Python by total_points property descending
     houses = House.query.all()
     houses.sort(key=lambda h: h.total_points or 0, reverse=True)
     
-    recent_competitions = Competition.query.order_by(Competition.date.desc()).limit(5).all()
+    # Safely fetch recent competitions ordered by ID descending
+    try:
+        recent_competitions = Competition.query.order_by(Competition.id.desc()).limit(5).all()
+    except Exception:
+        recent_competitions = Competition.query.limit(5).all()
+        
     return render_template('public/index.html', houses=houses, recent_competitions=recent_competitions)
 
 @public_bp.route('/export-podium-certificate')
