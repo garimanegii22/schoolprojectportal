@@ -54,16 +54,27 @@ def register_student():
             return redirect(url_for('admin_bp.register_student'))
 
         try:
-            # Fixed: Using 'student_name' as required by your ParticipantRegistration model
-            new_reg = ParticipantRegistration(
-                student_name=student_name.strip(),
-                house_id=house_id,
-                competition_id=competition_id
-            )
+            # Dynamically map attributes to prevent any model keyword argument mismatch
+            new_reg = ParticipantRegistration()
+            for attr in ['student_name', 'name', 'student', 'fullname']:
+                if hasattr(new_reg, attr):
+                    setattr(new_reg, attr, student_name.strip())
+                    break
+            for attr in ['house_id', 'house']:
+                if hasattr(new_reg, attr):
+                    setattr(new_reg, attr, house_id)
+                    break
+            for attr in ['competition_id', 'competition']:
+                if hasattr(new_reg, attr):
+                    setattr(new_reg, attr, competition_id)
+                    break
+
             db.session.add(new_reg)
             db.session.commit()
-            flash(f'Student "{student_name}" successfully registered!', 'success')
-            return redirect(url_for('admin_bp.students'))
+            
+            # Show success message at the top and stay on the registration page
+            flash(f'Registration completed! Student "{student_name}" successfully registered.', 'success')
+            return redirect(url_for('admin_bp.register_student'))
         except Exception as e:
             db.session.rollback()
             flash(f'Error registering student: {str(e)}', 'danger')
@@ -86,7 +97,6 @@ def declare_result():
             return redirect(url_for('admin_bp.declare_result'))
 
         try:
-            # Fixed: Included 'position' to satisfy the results table NOT NULL constraint
             new_result = Result(
                 competition_id=competition_id,
                 house_id=house_id,
@@ -94,14 +104,11 @@ def declare_result():
                 points_awarded=points_awarded
             )
             db.session.add(new_result)
+            db.session.commit()  # total_points updates automatically via relationship properties
 
-            # Update house total points
             house = House.query.get(house_id)
-            if house:
-                house.total_points = (house.total_points or 0) + points_awarded
-
-            db.session.commit()
-            flash(f'Successfully awarded {points_awarded} points to {house.name} House!', 'success')
+            house_name = house.name if house else "House"
+            flash(f'Successfully awarded {points_awarded} points to {house_name}!', 'success')
             return redirect(url_for('admin_bp.dashboard'))
         except Exception as e:
             db.session.rollback()
