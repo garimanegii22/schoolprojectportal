@@ -1,201 +1,101 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inter-House Championship Leaderboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .gold-glow { box-shadow: 0 0 25px rgba(251, 191, 36, 0.4); border: 2px solid #fbbf24; }
+        .silver-glow { box-shadow: 0 0 15px rgba(203, 213, 225, 0.25); border: 2px solid #cbd5e1; }
+        .bronze-glow { box-shadow: 0 0 15px rgba(180, 83, 9, 0.25); border: 2px solid #b45309; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
 
-{% block title %}School House Championship Portal (Live Standings){% endblock %}
+    <!-- Header Navigation -->
+    <nav class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700 sticky top-0 z-50 px-4 py-3 sm:px-8 flex justify-between items-center">
+        <h1 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+            🏆 House Championship
+        </h1>
+        <div class="flex items-center gap-3">
+            <a href="{{ url_for('public_bp.export_podium_certificate') }}" 
+               class="px-3 py-2 text-xs sm:text-sm bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-lg hover:bg-amber-500/30 transition font-medium">
+                📄 Export Certificate
+            </a>
+            <a href="{{ url_for('admin_bp.login') }}" 
+               class="px-3 py-2 text-xs sm:text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition font-medium">
+                Admin Portal
+            </a>
+        </div>
+    </nav>
 
-{% block content %}
-        <!-- Live Leaderboard Cards -->
-        <section>
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-ranking-star text-indigo-400"></i> Live House Standings
-                </h2>
-                <span class="text-xs text-gray-400 bg-white/5 px-3 py-1 rounded-full border border-white/5">Calculated live from MySQL database</span>
-            </div>
-            <div id="leaderboardGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {% for house in houses %}
-                <div class="glass p-5 rounded-3xl border {{ house.border_class }} {{ house.glow_class }} relative overflow-hidden flex flex-col justify-between">
-                    <div class="flex justify-between items-start">
-                        <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-white/5 text-gray-300 border border-white/10">
-                            Rank #{{ loop.index }}
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-8">
+        <!-- Section Header -->
+        <div class="text-center mb-10">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-2">Current Live Standings</h2>
+            <p class="text-slate-400 text-sm sm:text-base">Real-time point accumulation across all school events</p>
+        </div>
+
+        <!-- Glorified Podium / Hierarchy View -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end mb-12">
+            {% for house in houses %}
+                {% set rank = loop.index %}
+                <div class="rounded-2xl p-6 transition-all duration-300 transform hover:-translate-y-1
+                    {% if rank == 1 %}
+                        bg-gradient-to-b from-amber-950/80 to-slate-800 gold-glow order-first md:order-2 md:scale-110 z-10 py-8
+                    {% elif rank == 2 %}
+                        bg-gradient-to-b from-slate-800 to-slate-800/90 silver-glow order-2 md:order-1 py-6
+                    {% elif rank == 3 %}
+                        bg-gradient-to-b from-amber-900/30 to-slate-800/90 bronze-glow order-3 md:order-3 py-6
+                    {% else %}
+                        bg-slate-800/50 border border-slate-700/60 order-4 py-5
+                    {% endif %}
+                ">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-2xl">
+                            {% if rank == 1 %}🥇{% elif rank == 2 %}🥈{% elif rank == 3 %}🥉{% else %}#{% echo rank %}{% endif %}
                         </span>
-                        <span class="text-3xl font-black text-white">{{ house.total_points }} <span class="text-xs font-normal text-gray-400">pts</span></span>
+                        <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full 
+                            {% if rank == 1 %}bg-amber-400/20 text-amber-300 border border-amber-400/40{% else %}bg-slate-700 text-slate-300{% endif %}">
+                            Rank {{ rank }}
+                        </span>
                     </div>
-                    <div class="mt-6">
-                        <h3 class="text-2xl font-black {{ house.display_color }} flex items-center gap-2">
-                            <span>{{ house.emoji }}</span> {{ house.name }}
-                        </h3>
-                        <div class="mt-3 pt-3 border-t border-white/5 flex justify-between text-xs text-gray-400 font-medium">
-                            <span>1st Place Wins:</span>
-                            <span class="text-white font-bold">{{ house.total_wins }}</span>
-                        </div>
+
+                    <h3 class="text-xl sm:text-2xl font-bold text-white mb-1">
+                        {{ house.emoji }} {{ house.name }}
+                    </h3>
+                    
+                    <div class="mt-4 pt-4 border-t border-slate-700/60 flex items-baseline justify-between">
+                        <span class="text-xs text-slate-400 uppercase font-semibold">Total Points</span>
+                        <span class="text-2xl sm:text-3xl font-black {% if rank == 1 %}text-amber-400{% else %}text-white{% endif %}">
+                            {{ house.total_points }}
+                        </span>
                     </div>
                 </div>
+            {% endfor %}
+        </div>
+
+        <!-- Recent Competitions -->
+        <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6 shadow-lg">
+            <h3 class="text-xl font-bold text-white mb-4">Recent Competitions</h3>
+            <div class="divide-y divide-slate-700/60">
+                {% for comp in recent_competitions %}
+                    <div class="py-3 flex justify-between items-center text-sm sm:text-base">
+                        <div>
+                            <span class="font-semibold text-slate-200">{{ comp.name }}</span>
+                            <span class="text-xs text-slate-400 block sm:inline sm:ml-2">({{ comp.category }})</span>
+                        </div>
+                        <span class="text-xs sm:text-sm bg-slate-700 px-3 py-1 rounded-full text-slate-300">
+                            Max: {{ comp.max_points }} pts
+                        </span>
+                    </div>
+                {% else %}
+                    <p class="text-slate-400 text-sm py-2">No competitions recorded yet.</p>
                 {% endfor %}
             </div>
-        </section>
-
-        <!-- Main Workspace Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            <!-- Left 2 Cols: Public Info / Notice Board -->
-            <div class="lg:col-span-2 space-y-8">
-                
-                <div class="glass p-8 rounded-3xl space-y-6 border border-white/10 relative overflow-hidden">
-                    <div class="absolute -right-10 -bottom-10 text-9xl opacity-5 pointer-events-none">🏛️</div>
-                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-bullhorn text-indigo-400"></i> Championship Overview & Rules
-                    </h3>
-                    <p class="text-gray-300 text-sm leading-relaxed">
-                        Welcome to the official School House Championship Portal. This platform manages inter-house competitions, records podium finishes, and maintains live standings across all school events.
-                    </p>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                        <div class="p-4 rounded-2xl bg-white/5 border border-white/5">
-                            <span class="text-xs text-gray-400 block">1st Position</span>
-                            <span class="text-lg font-extrabold text-emerald-400">10 Points</span>
-                        </div>
-                        <div class="p-4 rounded-2xl bg-white/5 border border-white/5">
-                            <span class="text-xs text-gray-400 block">2nd Position</span>
-                            <span class="text-lg font-extrabold text-blue-400">7 Points</span>
-                        </div>
-                        <div class="p-4 rounded-2xl bg-white/5 border border-white/5">
-                            <span class="text-xs text-gray-400 block">3rd / 4th Position</span>
-                            <span class="text-lg font-extrabold text-purple-400">5 / 3 Points</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Active Competitions List -->
-                <div class="glass p-6 rounded-3xl border border-white/10 space-y-4">
-                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-flag-checkered text-amber-400"></i> Scheduled & Active Competitions
-                    </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {% if competitions %}
-                            {% for comp in competitions %}
-                            <div class="p-4 rounded-2xl bg-white/5 border border-white/5 flex flex-col justify-between">
-                                <div>
-                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">{{ comp.category }}</span>
-                                    <h4 class="font-bold text-white mt-2">{{ comp.name }}</h4>
-                                </div>
-                                <div class="mt-4 pt-3 border-t border-white/5 flex justify-between text-xs text-gray-400">
-                                    <span>📅 {{ comp.event_date.strftime('%b %d, %Y') }}</span>
-                                    <span>Max Points: <strong class="text-white">{{ comp.max_points }}</strong></span>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <p class="text-gray-500 italic text-center py-6 col-span-2">No active competitions scheduled yet.</p>
-                        {% endif %}
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Right Col: Search & Chart -->
-            <div class="space-y-8">
-                <div class="glass p-6 rounded-3xl space-y-4 border border-white/10">
-                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-magnifying-glass text-blue-400"></i> Universal Search
-                    </h3>
-                    <input type="text" id="searchInput" oninput="performSearch()" placeholder="Search student, house, or event..." class="w-full bg-darkbg border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500">
-                    <div id="searchResults" class="max-h-56 overflow-y-auto space-y-2 text-xs text-gray-300 pr-1">
-                        <p class="text-gray-500 italic text-center py-4">Type above to filter records...</p>
-                    </div>
-                </div>
-
-                <div class="glass p-6 rounded-3xl border border-white/10">
-                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-chart-pie text-purple-400"></i> Share of Points
-                    </h3>
-                    <div class="relative h-56 flex items-center justify-center">
-                        <canvas id="pointsChart"></canvas>
-                    </div>
-                </div>
-            </div>
         </div>
+    </main>
 
-        <!-- History Table -->
-        <div class="glass p-6 rounded-3xl border border-white/10 space-y-4">
-            <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                <i class="fa-solid fa-clock-rotate-left text-teal-400"></i> Competition Results & History
-            </h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm text-gray-300">
-                    <thead class="bg-white/5 text-gray-400 uppercase text-xs">
-                        <tr>
-                            <th class="p-3 rounded-l-xl">Competition</th>
-                            <th class="p-3">Category</th>
-                            <th class="p-3">Position</th>
-                            <th class="p-3">House</th>
-                            <th class="p-3 rounded-r-xl">Points</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-white/5">
-                        {% if results %}
-                            {% for r in results %}
-                            <tr class="hover:bg-white/5 transition">
-                                <td class="p-3 font-semibold text-white">{{ r.competition.name }}</td>
-                                <td class="p-3 text-gray-400">{{ r.competition.category }}</td>
-                                <td class="p-3"><span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-bold">{{ r.position }}</span></td>
-                                <td class="p-3 font-bold text-white">{{ r.house.name }} House</td>
-                                <td class="p-3 font-bold text-emerald-400">+{{ r.points_awarded }} pts</td>
-                            </tr>
-                            {% endfor %}
-                        {% else %}
-                            <tr><td colspan="5" class="p-6 text-center text-gray-500 italic">No competition results recorded yet.</td></tr>
-                        {% endif %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    let portalData = { houses: {}, students: [], competitions: [] };
-
-    // Fetch live portal data for search and chart
-    fetch('/api/data')
-        .then(res => res.json())
-        .then(data => {
-            portalData = data;
-            initChart(data.houses);
-        });
-
-    let chartInstance = null;
-    function initChart(houses) {
-        const ctx = document.getElementById('pointsChart').getContext('2d');
-        const labels = Object.keys(houses);
-        const data = labels.map(k => houses[k].points);
-        const backgroundColors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b'];
-
-        chartInstance = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{ data: data, backgroundColor: backgroundColors, borderWidth: 0 }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af', font: { size: 11 } } } }
-            }
-        });
-    }
-
-    function performSearch() {
-        const query = document.getElementById('searchInput').value.toLowerCase().trim();
-        const resultsDiv = document.getElementById('searchResults');
-        if(!query) {
-            resultsDiv.innerHTML = `<p class="text-gray-500 italic text-center py-4">Type above to filter records...</p>`;
-            return;
-        }
-        let html = '';
-        portalData.students.filter(s => s.name.toLowerCase().includes(query) || s.house.toLowerCase().includes(query) || s.competitions.some(c => c.toLowerCase().includes(query)))
-            .forEach(s => { html += `<div class="p-2.5 rounded-xl bg-white/5 border border-white/5">👤 <b>${s.name}</b> (${s.house} House) — Class ${s.class}</div>`; });
-        portalData.competitions.filter(c => c.name.toLowerCase().includes(query) || c.category.toLowerCase().includes(query))
-            .forEach(c => { html += `<div class="p-2.5 rounded-xl bg-white/5 border border-white/5">🏆 Event: <b>${c.name}</b> (${c.category}) on ${c.date}</div>`; });
-        resultsDiv.innerHTML = html || `<p class="text-gray-500 text-center py-4">No matching records found in database.</p>`;
-    }
-</script>
-{% endblock %}
+</body>
+</html>

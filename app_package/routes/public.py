@@ -1,74 +1,78 @@
-from flask import Blueprint, render_template, jsonify, make_response
-from app_package.models import House, Competition, Student, Result
-import csv
-import io
+from flask import Blueprint, render_template, Response
+from app_package.models import House, Competition, ParticipantRegistration, Result
+from app_package import db
+from datetime import datetime
 
 public_bp = Blueprint('public_bp', __name__)
 
 @public_bp.route('/')
 def index():
-    houses = House.query.all()
-    competitions = Competition.query.filter_by(is_archived=False).all()
-    results = Result.query.order_by(Result.id.desc()).all()
-    students = Student.query.all()
-    
-    # Sort houses by total points descending, then wins descending (tie-breaker)
-    sorted_houses = sorted(houses, key=lambda h: (h.total_points, h.total_wins), reverse=True)
-    
-    return render_template('public/index.html', 
-                           houses=sorted_houses, 
-                           competitions=competitions, 
-                           results=results, 
-                           students=students)
+    # Retrieve houses ordered by total points descending for podium hierarchy
+    houses = House.query.order_by(House.total_points.desc()).all()
+    recent_competitions = Competition.query.order_by(Competition.date.desc()).limit(5).all()
+    return render_template('public/index.html', houses=houses, recent_competitions=recent_competitions)
 
-@public_bp.route('/api/data')
-def get_data():
-    """API endpoint to fetch live portal state for dynamic frontend updates."""
-    houses = House.query.all()
-    competitions = Competition.query.filter_by(is_archived=False).all()
-    results = Result.query.order_by(Result.id.desc()).all()
-    students = Student.query.all()
-    
-    sorted_houses = sorted(houses, key=lambda h: (h.total_points, h.total_wins), reverse=True)
-    
-    houses_data = {}
-    for h in sorted_houses:
-        houses_data[h.name] = {
-            "name": h.name,
-            "emoji": h.emoji,
-            "color": h.display_color,
-            "border": h.border_class,
-            "glow": h.glow_class,
-            "points": h.total_points,
-            "wins": h.total_wins
-        }
-        
-    comps_data = [{"id": c.id, "name": c.name, "category": c.category, "date": c.event_date.strftime('%Y-%m-%d'), "maxPoints": c.max_points} for c in competitions]
-    results_data = [{"competition": r.competition.name, "category": r.competition.category, "position": r.position, "house": r.house.name, "points": r.points_awarded} for r in results]
-    students_data = [{"name": s.full_name, "roll": s.roll_number, "class": s.class_section, "house": s.house.name, "competitions": [reg.competition.name for reg in s.registrations]} for s in students]
-    
-    return jsonify({
-        "houses": houses_data,
-        "competitions": comps_data,
-        "results": results_data,
-        "students": students_data
-    })
+@public_bp.route('/export-podium-certificate')
+def export_podium_certificate():
+    houses = House.query.order_by(House.total_points.desc()).all()
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"House_Championship_Standings_{timestamp}.html"
 
-@public_bp.route('/export/csv')
-def export_csv():
-    """Exports current house standings as a downloadable CSV file."""
-    houses = House.query.all()
-    sorted_houses = sorted(houses, key=lambda h: (h.total_points, h.total_wins), reverse=True)
-    
-    output = io.StringIO()
-    writer = csv.writer(output)
-    writer.writerow(['Rank', 'House', 'Points', 'Wins'])
-    
-    for idx, h in enumerate(sorted_houses, 1):
-        writer.writerow([idx, h.name, h.total_points, h.total_wins])
-        
-    output.seek(0)
-    response = make_response(output.getvalue())
-    response.headers["Content-Disposition"] = "attachment; filename=school_house_standings.csv"
-    response.headers["Content-Type"] = "text/csv"
+    # HTML Printable Certificate Format
+    html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Official House Championship Results</title>
+    <style>
+        body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #f8fafc; padding: 40px; text-align: center; }}
+        .cert-card {{ border: 3px solid #e2e8f0; border-radius: 20px; padding: 40px; max-width: 800px; margin: 0 auto; background: #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }}
+        h1 {{ color: #fbbf24; font-size: 32px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; }}
+        h3 {{ color: #94a3b8; font-weight: 400; margin-top: 0; }}
+        .standings-table {{ width: 100%; border-collapse: collapse; margin-top: 30px; text-align: left; }}
+        .standings-table th {{ background: #334155; color: #f1f5f9; padding: 12px; border-bottom: 2px solid #475569; }}
+        .standings-table td {{ padding: 14px; border-bottom: 1px solid #334155; font-size: 18px; }}
+        .rank-1 {{ color: #fbbf24; font-weight: bold; font-size: 20px; }}
+        .rank-2 {{ color: #cbd5e1; font-weight: bold; }}
+        .rank-3 {{ color: #b45309; font-weight: bold; }}
+        .footer {{ margin-top: 40px; font-size: 12px; color: #64748b; }}
+    </style>
+</head>
+<body>
+    <div class="cert-card">
+        <h1>🏆 Inter-House Championship Standings</h1>
+        <h3>Official Standings Certificate</h3>
+        <hr style="border-color: #334155; margin: 20px 0;">
+        <table class="standings-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>House Name</th>
+                    <th>Total Points</th>
+                </tr>
+            </thead>
+            <tbody>
+"""
+    for idx, house in enumerate(houses, start=1):
+        rank_class = f"rank-{idx}" if idx <= 3 else ""
+        badge = "🥇 " if idx == 1 else ("🥈 " if idx == 2 else ("🥉 " if idx == 3 else f"#{idx} "))
+        html_content += f"""
+                <tr class="{rank_class}">
+                    <td>{badge} Rank {idx}</td>
+                    <td>{house.emoji if hasattr(house, 'emoji') else ''} {house.name} House</td>
+                    <td>{house.total_points} pts</td>
+                </tr>"""
+
+    html_content += f"""
+            </tbody>
+        </table>
+        <div class="footer">
+            Generated on {datetime.now().strftime('%B %d, %Y at %I:%M %p')} | Official School Competition Portal
+        </div>
+    </div>
+</body>
+</html>"""
+
+    response = Response(html_content, mimetype='text/html')
+    response.headers["Content-Disposition"] = f"attachment; filename={filename}"
     return response
