@@ -31,20 +31,27 @@
                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 transition">
                 </div>
 
-                <!-- Category with Dropdown + Manual Entry -->
+                <!-- Category Dropdown with Custom Option Support -->
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Category (Select or Type Custom)</label>
-                    <input type="text" name="category" list="category-options" required placeholder="Select or type category..."
-                           class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 transition">
-                    <datalist id="category-options">
-                        <option value="Sports">
-                        <option value="Academics">
-                        <option value="Cultural">
-                    </datalist>
-                    <p class="text-[11px] text-slate-500 mt-1">Choose Sports, Academics, Cultural, or type your own custom category.</p>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Category</label>
+                    <select id="category-select" name="category" required onchange="handleCategoryChange(this)"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
+                        <option value="" disabled selected>Select category...</option>
+                        <option value="Sports">Sports</option>
+                        <option value="Academics">Academics</option>
+                        <option value="Cultural">Cultural</option>
+                        <option value="Custom">Custom (Manual Entry)</option>
+                    </select>
                 </div>
 
-                <!-- Event Date -->
+                <!-- Custom Category Input (Hidden by default) -->
+                <div id="custom-category-wrapper" class="hidden">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Custom Category Name</label>
+                    <input type="text" id="custom-category-input" placeholder="Type custom category..."
+                           class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 transition">
+                </div>
+
+                <!-- Event Date (Clean Input) -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Event Date</label>
                     <input type="date" name="date" required
@@ -89,6 +96,21 @@
             let val = parseInt(input.value) || 0;
             val = Math.max(5, val + delta);
             input.value = val;
+        }
+
+        function handleCategoryChange(select) {
+            const wrapper = document.getElementById('custom-category-wrapper');
+            const customInput = document.getElementById('custom-category-input');
+            if (select.value === 'Custom') {
+                wrapper.classList.remove('hidden');
+                customInput.setAttribute('name', 'category');
+                select.removeAttribute('name');
+                customInput.focus();
+            } else {
+                wrapper.classList.add('hidden');
+                customInput.removeAttribute('name');
+                select.setAttribute('name', 'category');
+            }
         }
     </script>
 </body>
