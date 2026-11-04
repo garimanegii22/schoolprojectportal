@@ -74,8 +74,16 @@
                 </div>
                 <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 col-span-2 sm:col-span-1">
                     <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Leading House</span>
-                    <span class="text-base sm:text-lg font-bold text-white truncate block">
-                        {% if leading_house %}{{ leading_house.name }} ({{ leading_house.total_points }}){% else %}None{% endif %}
+                    <span class="text-base sm:text-lg font-bold truncate block">
+                        {% if leading_house %}
+                            {% set l_name = leading_house.name | lower %}
+                            {% if 'blue' in l_name %}<span class="text-blue-400 font-black">{{ leading_house.name }}</span>
+                            {% elif 'red' in l_name %}<span class="text-red-400 font-black">{{ leading_house.name }}</span>
+                            {% elif 'green' in l_name %}<span class="text-emerald-400 font-black">{{ leading_house.name }}</span>
+                            {% elif 'yellow' in l_name %}<span class="text-amber-400 font-black">{{ leading_house.name }}</span>
+                            {% else %}<span class="text-white font-black">{{ leading_house.name }}</span>{% endif %}
+                            ({{ leading_house.total_points }})
+                        {% else %}None{% endif %}
                     </span>
                 </div>
             </div>
@@ -87,18 +95,31 @@
             <p class="text-xs text-slate-400 mb-6">Percentage share of total accumulated points across all houses</p>
             
             <div class="h-5 w-full bg-slate-950 rounded-xl overflow-hidden flex mb-6 border border-slate-800 shadow-inner">
-                {% set colors = ['bg-red-500', 'bg-blue-500', 'bg-emerald-500', 'bg-amber-500', 'bg-purple-500'] %}
                 {% for item in house_shares %}
-                    <div style="width: {{ item.percentage }}%;" class="{{ colors[loop.index0 % colors|length] }} transition-all duration-500" title="{{ item.name }}: {{ item.percentage }}%"></div>
+                    {% set i_name = item.name | lower %}
+                    {% if 'blue' in i_name %}{% set bar_color = 'bg-blue-500' %}
+                    {% elif 'red' in i_name %}{% set bar_color = 'bg-red-500' %}
+                    {% elif 'green' in i_name %}{% set bar_color = 'bg-emerald-500' %}
+                    {% elif 'yellow' in i_name %}{% set bar_color = 'bg-amber-400' %}
+                    {% else %}{% set bar_color = 'bg-purple-500' %}{% endif %}
+                    
+                    <div style="width: {{ item.percentage }}%;" class="{{ bar_color }} transition-all duration-500" title="{{ item.name }}: {{ item.percentage }}%"></div>
                 {% endfor %}
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {% for item in house_shares %}
+                    {% set i_name = item.name | lower %}
+                    {% if 'blue' in i_name %}{% set dot_color = 'bg-blue-500' %}{% set t_color = 'text-blue-400' %}
+                    {% elif 'red' in i_name %}{% set dot_color = 'bg-red-500' %}{% set t_color = 'text-red-400' %}
+                    {% elif 'green' in i_name %}{% set dot_color = 'bg-emerald-500' %}{% set t_color = 'text-emerald-400' %}
+                    {% elif 'yellow' in i_name %}{% set dot_color = 'bg-amber-400' %}{% set t_color = 'text-amber-400' %}
+                    {% else %}{% set dot_color = 'bg-purple-500' %}{% set t_color = 'text-white' %}{% endif %}
+
                     <div class="flex items-center gap-3 bg-slate-950/50 border border-slate-800/80 p-3 rounded-xl">
-                        <div class="w-3.5 h-3.5 rounded-full {{ colors[loop.index0 % colors|length] }}"></div>
+                        <div class="w-3.5 h-3.5 rounded-full {{ dot_color }}"></div>
                         <div>
-                            <span class="text-xs font-bold text-white block">{{ item.name }}</span>
+                            <span class="text-xs font-bold {{ t_color }} block">{{ item.name }}</span>
                             <span class="text-[11px] text-slate-400">{{ item.percentage }}% ({{ item.points }} pts)</span>
                         </div>
                     </div>
@@ -106,7 +127,7 @@
             </div>
         </div>
 
-        <!-- House Standings Section (House names colored in their specific house colors) -->
+        <!-- House Standings Section -->
         <div>
             <h3 class="text-2xl font-black text-white tracking-tight mb-2">House Standings</h3>
             <p class="text-xs sm:text-sm text-slate-400 font-medium mb-6">Ranked in descending order</p>
@@ -133,7 +154,6 @@
                         </div>
 
                         <div class="mb-4">
-                            <!-- House name rendered in its specific matching color -->
                             <h4 class="text-2xl font-black {{ text_color }}">{{ house.name }} House</h4>
                         </div>
                         

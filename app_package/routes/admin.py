@@ -54,25 +54,21 @@ def register_student():
             return redirect(url_for('admin_bp.register_student'))
 
         try:
-            # Dynamically map attributes to prevent any model keyword argument mismatch
+            # Safely instantiate and set attributes matching the model schema
             new_reg = ParticipantRegistration()
-            for attr in ['student_name', 'name', 'student', 'fullname']:
-                if hasattr(new_reg, attr):
-                    setattr(new_reg, attr, student_name.strip())
-                    break
-            for attr in ['house_id', 'house']:
-                if hasattr(new_reg, attr):
-                    setattr(new_reg, attr, house_id)
-                    break
-            for attr in ['competition_id', 'competition']:
-                if hasattr(new_reg, attr):
-                    setattr(new_reg, attr, competition_id)
-                    break
+            if hasattr(new_reg, 'student_name'):
+                new_reg.student_name = student_name.strip()
+            elif hasattr(new_reg, 'name'):
+                new_reg.name = student_name.strip()
+            
+            if hasattr(new_reg, 'house_id'):
+                new_reg.house_id = house_id
+            if hasattr(new_reg, 'competition_id'):
+                new_reg.competition_id = competition_id
 
             db.session.add(new_reg)
             db.session.commit()
             
-            # Show success message at the top and stay on the registration page
             flash(f'Registration completed! Student "{student_name}" successfully registered.', 'success')
             return redirect(url_for('admin_bp.register_student'))
         except Exception as e:
@@ -97,6 +93,12 @@ def declare_result():
             return redirect(url_for('admin_bp.declare_result'))
 
         try:
+            # Check if position is already taken for this competition
+            existing_result = Result.query.filter_by(competition_id=competition_id, position=position).first()
+            if existing_result:
+                flash(f'Position #{position} has already been awarded for this event!', 'danger')
+                return redirect(url_for('admin_bp.declare_result'))
+
             new_result = Result(
                 competition_id=competition_id,
                 house_id=house_id,
@@ -104,11 +106,11 @@ def declare_result():
                 points_awarded=points_awarded
             )
             db.session.add(new_result)
-            db.session.commit()  # total_points updates automatically via relationship properties
+            db.session.commit()
 
             house = House.query.get(house_id)
             house_name = house.name if house else "House"
-            flash(f'Successfully awarded {points_awarded} points to {house_name}!', 'success')
+            flash(f'Successfully awarded {points_awarded} points to {house_name} for Position #{position}!', 'success')
             return redirect(url_for('admin_bp.dashboard'))
         except Exception as e:
             db.session.rollback()
