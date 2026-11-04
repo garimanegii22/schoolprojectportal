@@ -1,8 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask_login import login_required, current_user
+from flask_login import login_required, current_user, login_user, logout_user
 from app_package.models import Admin, House, Competition, ParticipantRegistration, Result
 from app_package import db
-from werkzeug.security import generate_password_hash
 
 admin_bp = Blueprint('admin_bp', __name__)
 
@@ -13,7 +12,6 @@ def login():
         password = request.form.get('password')
         admin = Admin.query.filter_by(username=username).first()
         if admin and admin.check_password(password):
-            from flask_login import login_user
             login_user(admin)
             flash('Logged in successfully.', 'success')
             return redirect(url_for('admin_bp.dashboard'))
@@ -23,7 +21,6 @@ def login():
 @admin_bp.route('/logout')
 @login_required
 def logout():
-    from flask_login import logout_user
     logout_user()
     flash('Logged out successfully.', 'info')
     return redirect(url_for('public_bp.index'))
@@ -61,4 +58,4 @@ def add_event():
             db.session.rollback()
             flash(f'Error adding event: {str(e)}', 'danger')
             
-    return render_template('admin/add_event.html')
+    return render_template('admin/add_events.html')
