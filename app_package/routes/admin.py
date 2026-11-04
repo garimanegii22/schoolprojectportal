@@ -54,12 +54,15 @@ def register_student():
             return redirect(url_for('admin_bp.register_student'))
 
         try:
-            # Safely instantiate and set attributes matching the model schema
             new_reg = ParticipantRegistration()
+            # Safely assign fields based on model schema
             if hasattr(new_reg, 'student_name'):
                 new_reg.student_name = student_name.strip()
             elif hasattr(new_reg, 'name'):
                 new_reg.name = student_name.strip()
+            
+            if hasattr(new_reg, 'student_id'):
+                new_reg.student_id = f"STU-{int(datetime.now().timestamp())}"
             
             if hasattr(new_reg, 'house_id'):
                 new_reg.house_id = house_id
@@ -86,9 +89,8 @@ def declare_result():
         competition_id = request.form.get('competition_id', type=int)
         house_id = request.form.get('house_id', type=int)
         position = request.form.get('position', type=int, default=1)
-        points_awarded = request.form.get('points_awarded', type=int)
 
-        if not competition_id or not house_id or points_awarded is None:
+        if not competition_id or not house_id:
             flash('All fields are required to declare a result.', 'danger')
             return redirect(url_for('admin_bp.declare_result'))
 
@@ -98,6 +100,15 @@ def declare_result():
             if existing_result:
                 flash(f'Position #{position} has already been awarded for this event!', 'danger')
                 return redirect(url_for('admin_bp.declare_result'))
+
+            # Automatically calculate proportional points based on 4:3:2:1 scale
+            competition = Competition.query.get(competition_id)
+            max_pts = competition.max_points if competition else 40
+            
+            # Scale weights: 1st=4, 2nd=3, 3rd=2, 4th=1 out of 10 total proportion units
+            scale_weights = {1: 0.4, 2: 0.3, 3: 0.2, 4: 0.1}
+            weight = scale_weights.get(position, 0.1)
+            points_awarded = int(max_pts * weight)
 
             new_result = Result(
                 competition_id=competition_id,
@@ -111,7 +122,7 @@ def declare_result():
             house = House.query.get(house_id)
             house_name = house.name if house else "House"
             flash(f'Successfully awarded {points_awarded} points to {house_name} for Position #{position}!', 'success')
-            return redirect(url_for('admin_bp.dashboard'))
+            return redirect(url_for('admin_bp.declare_result'))
         except Exception as e:
             db.session.rollback()
             flash(f'Error declaring result: {str(e)}', 'danger')

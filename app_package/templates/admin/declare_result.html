@@ -19,7 +19,18 @@
     <main class="flex-1 max-w-xl w-full mx-auto px-4 py-12">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
             <h2 class="text-2xl font-black text-white mb-2">Award Competition Points</h2>
-            <p class="text-xs text-slate-400 mb-6">Select competition, house, and position to assign points and update the leaderboard.</p>
+            <p class="text-xs text-slate-400 mb-6">Select competition, house, and position. Points are awarded automatically based on the event's max points (4:3:2:1 scale).</p>
+
+            <!-- Flash messages displayed right at the top of the form -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mb-6 p-4 rounded-2xl text-xs sm:text-sm font-semibold {% if category == 'danger' or category == 'error' %}bg-red-500/10 text-red-400 border border-red-500/20{% else %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
 
             <form method="POST" action="" class="space-y-5">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
@@ -50,29 +61,22 @@
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Achieved Position</label>
                     <select name="position" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
-                        <option value="1" selected>1st Place</option>
-                        <option value="2">2nd Place</option>
-                        <option value="3">3rd Place</option>
-                        <option value="4">4th Place</option>
+                        <option value="1" selected>1st Place (40% of Max Points)</option>
+                        <option value="2">2nd Place (30% of Max Points)</option>
+                        <option value="3">3rd Place (20% of Max Points)</option>
+                        <option value="4">4th Place (10% of Max Points)</option>
                     </select>
-                </div>
-
-                <!-- Points Awarded -->
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Points to Award</label>
-                    <input type="number" name="points_awarded" min="1" required placeholder="e.g., 50"
-                           class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
                 </div>
 
                 <!-- Form Actions -->
                 <div class="pt-4 flex gap-3">
                     <a href="{{ url_for('admin_bp.dashboard') }}" 
                        class="w-1/2 text-center bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-semibold transition">
-                        Cancel
+                        Back to Dashboard
                     </a>
                     <button type="submit" 
-                            class="w-1/2 bg-amber-600 hover:bg-amber-500 text-white py-3 rounded-xl font-semibold shadow-lg shadow-amber-600/30 transition">
-                        Award Points
+                            class="w-1/2 bg-amber-600 hover:bg-amber-500 text-white py-3 rounded-xl font-semibold shadow-lg transition">
+                        Award Points Automatically
                     </button>
                 </div>
             </form>
