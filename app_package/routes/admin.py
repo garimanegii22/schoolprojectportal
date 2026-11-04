@@ -8,6 +8,10 @@ admin_bp = Blueprint('admin_bp', __name__)
 
 @admin_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    # If already logged in, seamlessly bypass login page when clicking Admin Portal
+    if current_user.is_authenticated:
+        return redirect(url_for('admin_bp.dashboard'))
+        
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('admin_pass')
@@ -37,8 +41,8 @@ def dashboard():
 @login_required
 def students():
     participants = ParticipantRegistration.query.all()
-    houses = House.query.all()
-    competitions = Competition.query.all()
+    houses = {h.id: h.name for h in House.query.all()}
+    competitions = {c.id: c.name for c in Competition.query.all()}
     return render_template('admin/students.html', participants=participants, houses=houses, competitions=competitions)
 
 @admin_bp.route('/register-student', methods=['GET', 'POST'])
@@ -46,23 +50,25 @@ def students():
 def register_student():
     if request.method == 'POST':
         student_name = request.form.get('student_name')
+        roll_number = request.form.get('roll_number', 'N/A')
         house_id = request.form.get('house_id', type=int)
         competition_id = request.form.get('competition_id', type=int)
 
         if not student_name or not house_id or not competition_id:
-            flash('All fields are required for student registration.', 'danger')
+            flash('All required fields must be filled for student registration.', 'danger')
             return redirect(url_for('admin_bp.register_student'))
 
         try:
             new_reg = ParticipantRegistration()
-            # Safely assign fields based on model schema
             if hasattr(new_reg, 'student_name'):
                 new_reg.student_name = student_name.strip()
             elif hasattr(new_reg, 'name'):
                 new_reg.name = student_name.strip()
             
-            if hasattr(new_reg, 'student_id'):
-                new_reg.student_id = f"STU-{int(datetime.now().timestamp())}"
+            if hasattr(new_reg, 'roll_number'):
+                new_reg.roll_number = roll_number.strip()
+            elif hasattr(new_reg, 'student_id'):
+                new_reg.student_id = roll_number.strip()
             
             if hasattr(new_reg, 'house_id'):
                 new_reg.house_id = house_id
@@ -72,7 +78,7 @@ def register_student():
             db.session.add(new_reg)
             db.session.commit()
             
-            flash(f'Registration completed! Student "{student_name}" successfully registered.', 'success')
+            flash(f'Registration completed! Student "{student_name}" (Roll No: {roll_number}) successfully registered.', 'success')
             return redirect(url_for('admin_bp.register_student'))
         except Exception as e:
             db.session.rollback()
@@ -95,17 +101,15 @@ def declare_result():
             return redirect(url_for('admin_bp.declare_result'))
 
         try:
-            # Check if position is already taken for this competition
             existing_result = Result.query.filter_by(competition_id=competition_id, position=position).first()
             if existing_result:
-                flash(f'Position #{position} has already been awarded for this event!', 'danger')
+                flash(f'Position #{position} has already been awarded for this event! Please select an available position.', 'danger')
                 return redirect(url_for('admin_bp.declare_result'))
 
-            # Automatically calculate proportional points based on 4:3:2:1 scale
             competition = Competition.query.get(competition_id)
             max_pts = competition.max_points if competition else 40
             
-            # Scale weights: 1st=4, 2nd=3, 3rd=2, 4th=1 out of 10 total proportion units
+            # 4:3:2:1 proportional scale
             scale_weights = {1: 0.4, 2: 0.3, 3: 0.2, 4: 0.1}
             weight = scale_weights.get(position, 0.1)
             points_awarded = int(max_pts * weight)
@@ -127,9 +131,21 @@ def declare_result():
             db.session.rollback()
             flash(f'Error declaring result: {str(e)}', 'danger')
 
-    competitions = Competition.query.all()
+    all_competitions = Competition.query.all()
+    # Filter out competitions where all 4 positions are already taken
+    competitions = []
+    for comp in all_competitions:
+        taken_count = Result.query.filter_by(competition_id=comp.id).count()
+        if taken_count < 4:
+            competitions.append(comp)
+
+    # Pass taken positions mapping for dynamic client-side skipping
+    taken_positions_map = {}
+    for comp in all_competitions:
+        taken_positions_map[comp.id] = [r.position for r in Result.query.filter_by(competition_id=comp.id).all()]
+
     houses = House.query.all()
-    return render_template('admin/declare_result.html', competitions=competitions, houses=houses)
+    return render_template('admin/declare_result.html', competitions=competitions, all_competitions=all_competitions, houses=houses, taken_positions_map=taken_positions_map)
 
 @admin_bp.route('/add-event', methods=['GET', 'POST'])
 @login_required
@@ -146,6 +162,13 @@ def add_event():
             
         try:
             parsed_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            
+            # Check if an event with exact same name and exact same date already exists
+            existing_event = Competition.query.filter_by(name=name.strip(), event_date=parsed_date).first()
+            if existing_event:
+                flash(f'An event named "{name}" scheduled on {date_str} already exists! Please choose a different date if this is a separate occurrence.', 'danger')
+                return redirect(url_for('admin_bp.add_event'))
+
             new_competition = Competition(
                 name=name.strip(),
                 category=category.strip(),

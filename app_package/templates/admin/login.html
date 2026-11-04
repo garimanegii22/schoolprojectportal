@@ -24,7 +24,6 @@
             {% endif %}
         {% endwith %}
 
-        <!-- Added autocomplete="off" to prevent browser credential manager alerts -->
         <form method="POST" action="" autocomplete="off" class="space-y-5">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div>
@@ -38,7 +37,7 @@
                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
             </div>
             <button type="submit" 
-                    class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-semibold shadow-lg shadow-blue-600/30 transition">
+                    class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-semibold shadow-lg transition">
                 Sign In to Dashboard
             </button>
         </form>

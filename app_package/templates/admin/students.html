@@ -8,23 +8,41 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
     <nav class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center shadow-md">
-        <h1 class="text-lg font-bold text-white">Admin Dashboard — Student Registrations</h1>
+        <h1 class="text-lg font-bold text-white">Admin Dashboard — Registered Participants</h1>
         <a href="{{ url_for('admin_bp.dashboard') }}" class="px-3.5 py-1.5 text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl transition font-medium">
             &larr; Back to Dashboard
         </a>
     </nav>
     <main class="flex-1 max-w-5xl w-full mx-auto px-4 py-10">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
-            <h2 class="text-xl font-black text-white mb-4">Registered Participants</h2>
-            <div class="divide-y divide-slate-800">
-                {% for p in participants %}
-                    <div class="py-3 flex justify-between items-center text-sm">
-                        <span class="font-medium text-slate-200">{{ p.student_name }} (House ID: {{ p.house_id }})</span>
-                        <span class="text-xs text-slate-400 bg-slate-800 px-3 py-1 rounded-lg">Event ID: {{ p.competition_id }}</span>
-                    </div>
-                {% else %}
-                    <p class="text-slate-400 text-sm py-6 text-center">No student registrations recorded yet.</p>
-                {% endfor %}
+            <h2 class="text-xl font-black text-white mb-6">Participant Records</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-800 text-xs text-slate-400 uppercase">
+                            <th class="py-3 px-4">Roll Number</th>
+                            <th class="py-3 px-4">Student Name</th>
+                            <th class="py-3 px-4">House</th>
+                            <th class="py-3 px-4">Event ID</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/60 text-sm">
+                        {% for p in participants %}
+                            <tr class="hover:bg-slate-800/40 transition">
+                                <td class="py-3.5 px-4 font-mono text-blue-400">{{ p.roll_number if p.roll_number else (p.student_id if p.student_id else 'N/A') }}</td>
+                                <td class="py-3.5 px-4 font-semibold text-white">{{ p.student_name if p.student_name else p.name }}</td>
+                                <td class="py-3.5 px-4 text-slate-300">
+                                    {% if p.house_id in houses %}{{ houses[p.house_id] }} House{% else %}House #{{ p.house_id }}{% endif %}
+                                </td>
+                                <td class="py-3.5 px-4 text-slate-400">Event #{{ p.competition_id }}</td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-slate-400 text-sm py-8 text-center">No student registrations recorded yet.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>
