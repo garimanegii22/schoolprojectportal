@@ -32,6 +32,12 @@ def dashboard():
     competitions = Competition.query.order_by(Competition.id.desc()).all()
     return render_template('admin/dashboard.html', houses=houses, competitions=competitions)
 
+@admin_bp.route('/students')
+@login_required
+def students():
+    participants = ParticipantRegistration.query.all()
+    return render_template('admin/students.html', participants=participants)
+
 @admin_bp.route('/add-event', methods=['GET', 'POST'])
 @login_required
 def add_event():
