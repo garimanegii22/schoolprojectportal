@@ -8,13 +8,13 @@ public_bp = Blueprint('public_bp', __name__)
 @public_bp.route('/')
 def index():
     houses = House.query.all()
-    houses.sort(key=lambda h: h.total_points or 0, reverse=True)
+    # Tie-breaker: Primary = total_points, Secondary = number of events scored in (len(h.results)), Tertiary = total_wins
+    houses.sort(key=lambda h: (h.total_points or 0, len(h.results) or 0, h.total_wins), reverse=True)
     
     total_points_awarded = sum(h.total_points for h in houses) or 1
     total_events_count = Competition.query.count()
     leading_house = houses[0] if houses else None
 
-    # Calculate share percentages for point distribution chart
     house_shares = []
     for h in houses:
         pts = h.total_points or 0
@@ -43,7 +43,7 @@ def index():
 @public_bp.route('/export-csv')
 def export_csv():
     houses = House.query.all()
-    houses.sort(key=lambda h: h.total_points or 0, reverse=True)
+    houses.sort(key=lambda h: (h.total_points or 0, len(h.results) or 0, h.total_wins), reverse=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"School_House_Championship_Report_{timestamp}.html"
 

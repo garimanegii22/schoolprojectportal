@@ -43,9 +43,7 @@ def dashboard():
 @login_required
 def students():
     participants = ParticipantRegistration.query.all()
-    houses = {h.id: h.name for h in House.query.all()}
-    competitions = {c.id: c.name for c in Competition.query.all()}
-    return render_template('admin/students.html', participants=participants, houses=houses, competitions=competitions)
+    return render_template('admin/students.html', participants=participants)
 
 @admin_bp.route('/register-student', methods=['GET', 'POST'])
 @login_required
@@ -110,9 +108,16 @@ def declare_result():
             return redirect(url_for('admin_bp.declare_result'))
 
         try:
-            existing_result = Result.query.filter_by(competition_id=competition_id, position=position_str).first()
-            if existing_result:
+            # 1. Check if position is already taken
+            existing_pos = Result.query.filter_by(competition_id=competition_id, position=position_str).first()
+            if existing_pos:
                 flash(f'Position #{pos_int} has already been awarded for this event!', 'danger')
+                return redirect(url_for('admin_bp.declare_result'))
+
+            # 2. Check if house already has ANY position in this competition
+            existing_house = Result.query.filter_by(competition_id=competition_id, house_id=house_id).first()
+            if existing_house:
+                flash(f'This house has already been awarded Position #{existing_house.position} for this event! A house cannot receive multiple ranks in the same competition.', 'danger')
                 return redirect(url_for('admin_bp.declare_result'))
 
             competition = Competition.query.get(competition_id)
@@ -141,6 +146,7 @@ def declare_result():
                                    all_competitions=all_comps, 
                                    houses=House.query.all(), 
                                    taken_positions_map={c.id: [int(r.position[0]) for r in Result.query.filter_by(competition_id=c.id).all()] for c in all_comps},
+                                   taken_houses_map={c.id: [r.house_id for r in Result.query.filter_by(competition_id=c.id).all()] for c in all_comps},
                                    preselected_comp=competition_id)
         except Exception as e:
             db.session.rollback()
@@ -149,9 +155,10 @@ def declare_result():
     all_competitions = Competition.query.all()
     competitions = [c for c in all_competitions if Result.query.filter_by(competition_id=c.id).count() < 4]
     taken_positions_map = {c.id: [int(r.position[0]) for r in Result.query.filter_by(competition_id=c.id).all()] for c in all_competitions}
+    taken_houses_map = {c.id: [r.house_id for r in Result.query.filter_by(competition_id=c.id).all()] for c in all_competitions}
     houses = House.query.all()
     
-    return render_template('admin/declare_result.html', competitions=competitions, all_competitions=all_competitions, houses=houses, taken_positions_map=taken_positions_map, preselected_comp=None)
+    return render_template('admin/declare_result.html', competitions=competitions, all_competitions=all_competitions, houses=houses, taken_positions_map=taken_positions_map, taken_houses_map=taken_houses_map, preselected_comp=None)
 
 @admin_bp.route('/add-event', methods=['GET', 'POST'])
 @login_required

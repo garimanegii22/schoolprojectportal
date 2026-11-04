@@ -18,7 +18,7 @@
     <main class="flex-1 max-w-xl w-full mx-auto px-4 py-12">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
             <h2 class="text-2xl font-black text-white mb-2">Award Competition Points</h2>
-            <p class="text-xs text-slate-400 mb-6">Select competition, house, and position. Points allocate automatically on the 4:3:2:1 scale.</p>
+            <p class="text-xs text-slate-400 mb-6">Select competition, achieved position, and house. Points allocate automatically on the 4:3:2:1 scale.</p>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -33,9 +33,10 @@
             <form method="POST" action="" class="space-y-5">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
+                <!-- 1. Select Competition -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Select Competition</label>
-                    <select name="competition_id" id="competition_select" required onchange="updateAvailablePositions()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
+                    <select name="competition_id" id="competition_select" required onchange="updateAvailableOptions()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
                         <option value="" disabled selected>Select event...</option>
                         {% for comp in competitions %}
                             <option value="{{ comp.id }}" {% if preselected_comp and comp.id == preselected_comp %}selected{% endif %}>{{ comp.name }} (Max: {{ comp.max_points }} pts)</option>
@@ -43,20 +44,19 @@
                     </select>
                 </div>
 
+                <!-- 2. Achieved Position -->
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Select Winning House</label>
-                    <select name="house_id" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
-                        <option value="" disabled selected>Select house...</option>
-                        {% for house in houses %}
-                            <option value="{{ house.id }}">{{ house.name }} House</option>
-                        {% endfor %}
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Achieved Position</label>
+                    <select name="position" id="position_select" required onchange="updateAvailableHouses()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
+                        <option value="" disabled selected>Select event first...</option>
                     </select>
                 </div>
 
+                <!-- 3. Select House -->
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Achieved Position</label>
-                    <select name="position" id="position_select" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
-                        <option value="" disabled selected>Select event first...</option>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Select House</label>
+                    <select name="house_id" id="house_select" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
+                        <option value="" disabled selected>Select position first...</option>
                     </select>
                 </div>
 
@@ -75,21 +75,27 @@
     </main>
 
     <script>
-        const takenMap = {{ taken_positions_map | tojson }};
+        const takenPositionsMap = {{ taken_positions_map | tojson }};
+        const takenHousesMap = {{ taken_houses_map | tojson }};
+        const allHouses = [
+            {% for house in houses %}
+                {id: {{ house.id }}, name: "{{ house.name }} House"},
+            {% endfor %}
+        ];
         
-        function updateAvailablePositions() {
+        function updateAvailableOptions() {
             const compSelect = document.getElementById('competition_select');
             const posSelect = document.getElementById('position_select');
             const compId = compSelect.value;
             
             posSelect.innerHTML = '';
             
-            const taken = takenMap[compId] || [];
+            const takenPositions = takenPositionsMap[compId] || [];
             const labels = {1: '1st Place', 2: '2nd Place', 3: '3rd Place', 4: '4th Place'};
             
             let firstAvailable = null;
             for (let i = 1; i <= 4; i++) {
-                if (!taken.includes(i)) {
+                if (!takenPositions.includes(i)) {
                     const opt = document.createElement('option');
                     opt.value = i;
                     opt.textContent = labels[i];
@@ -106,12 +112,40 @@
                 opt.textContent = "All positions awarded for this event!";
                 posSelect.appendChild(opt);
             }
+            updateAvailableHouses();
+        }
+
+        function updateAvailableHouses() {
+            const compSelect = document.getElementById('competition_select');
+            const houseSelect = document.getElementById('house_select');
+            const compId = compSelect.value;
+            
+            houseSelect.innerHTML = '';
+            const takenHouses = takenHousesMap[compId] || [];
+            
+            let availableCount = 0;
+            allHouses.forEach(house => {
+                if (!takenHouses.includes(house.id)) {
+                    const opt = document.createElement('option');
+                    opt.value = house.id;
+                    opt.textContent = house.name;
+                    houseSelect.appendChild(opt);
+                    availableCount++;
+                }
+            });
+
+            if (availableCount === 0) {
+                const opt = document.createElement('option');
+                opt.value = "";
+                opt.textContent = "All houses have been assigned a rank for this event!";
+                houseSelect.appendChild(opt);
+            }
         }
 
         window.onload = function() {
             const compSelect = document.getElementById('competition_select');
             if (compSelect.value) {
-                updateAvailablePositions();
+                updateAvailableOptions();
             }
         };
     </script>

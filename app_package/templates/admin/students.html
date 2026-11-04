@@ -23,18 +23,20 @@
                             <th class="py-3 px-4">Roll Number</th>
                             <th class="py-3 px-4">Student Name</th>
                             <th class="py-3 px-4">House</th>
-                            <th class="py-3 px-4">Event ID</th>
+                            <th class="py-3 px-4">Event ID / Name</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-800/60 text-sm">
                         {% for p in participants %}
                             <tr class="hover:bg-slate-800/40 transition">
-                                <td class="py-3.5 px-4 font-mono text-blue-400">{{ p.roll_number if p.roll_number else (p.student_id if p.student_id else 'N/A') }}</td>
-                                <td class="py-3.5 px-4 font-semibold text-white">{{ p.student_name if p.student_name else p.name }}</td>
+                                <td class="py-3.5 px-4 font-mono text-blue-400">{{ p.student.roll_number if p.student else 'N/A' }}</td>
+                                <td class="py-3.5 px-4 font-semibold text-white">{{ p.student.full_name if p.student else 'N/A' }}</td>
                                 <td class="py-3.5 px-4 text-slate-300">
-                                    {% if p.house_id in houses %}{{ houses[p.house_id] }} House{% else %}House #{{ p.house_id }}{% endif %}
+                                    {% if p.student and p.student.house %}{{ p.student.house.name }} House{% else %}N/A{% endif %}
                                 </td>
-                                <td class="py-3.5 px-4 text-slate-400">Event #{{ p.competition_id }}</td>
+                                <td class="py-3.5 px-4 text-slate-400">
+                                    {% if p.competition %}Event #{{ p.competition.id }} - {{ p.competition.name }}{% else %}Event #{{ p.competition_id }}{% endif %}
+                                </td>
                             </tr>
                         {% else %}
                             <tr>
