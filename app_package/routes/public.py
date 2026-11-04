@@ -11,29 +11,40 @@ def index():
     houses = House.query.all()
     houses.sort(key=lambda h: h.total_points or 0, reverse=True)
     
+    # Calculate extra metrics for the engaging dashboard
+    total_points_awarded = sum(h.total_points for h in houses)
+    total_events_count = Competition.query.count()
+    leading_house = houses[0] if houses else None
+
     # Safely fetch recent competitions ordered by ID descending
     try:
-        recent_competitions = Competition.query.order_by(Competition.id.desc()).limit(5).all()
+        recent_competitions = Competition.query.order_by(Competition.id.desc()).limit(6).all()
     except Exception:
-        recent_competitions = Competition.query.limit(5).all()
+        recent_competitions = Competition.query.limit(6).all()
         
-    return render_template('public/index.html', houses=houses, recent_competitions=recent_competitions)
+    return render_template(
+        'public/index.html', 
+        houses=houses, 
+        recent_competitions=recent_competitions,
+        total_points_awarded=total_points_awarded,
+        total_events_count=total_events_count,
+        leading_house=leading_house
+    )
 
 @public_bp.route('/export-csv')
 def export_csv():
-    # Matches base.html expected endpoint 'public_bp.export_csv'
+    # Generates the official printable HTML report/certificate
     houses = House.query.all()
     houses.sort(key=lambda h: h.total_points or 0, reverse=True)
     
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"House_Championship_Standings_{timestamp}.html"
+    filename = f"School_House_Championship_Report_{timestamp}.html"
 
-    # HTML Printable Certificate Format
     html_content = f"""<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Official House Championship Results</title>
+    <title>Official House Championship Report</title>
     <style>
         body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #f8fafc; padding: 40px; text-align: center; }}
         .cert-card {{ border: 2px solid #334155; border-radius: 16px; padding: 40px; max-width: 800px; margin: 0 auto; background: #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }}
@@ -47,8 +58,8 @@ def export_csv():
 </head>
 <body>
     <div class="cert-card">
-        <h1>Inter-House Championship Standings</h1>
-        <h3>Official Result Summary</h3>
+        <h1>Inter-House Championship Report</h1>
+        <h3>Official Standings & Score Summary</h3>
         <hr style="border-color: #334155; margin: 20px 0;">
         <table class="standings-table">
             <thead>
@@ -73,7 +84,7 @@ def export_csv():
             </tbody>
         </table>
         <div class="footer">
-            Generated on {datetime.now().strftime('%B %d, %Y at %I:%M %p')} | Official School Competition Portal
+            Generated on {datetime.now().strftime('%B %d, %Y at %I:%M %p')} | Official School Championship Portal
         </div>
     </div>
 </body>

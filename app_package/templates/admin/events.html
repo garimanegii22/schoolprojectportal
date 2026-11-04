@@ -6,62 +6,63 @@
     <title>Add Competition Event - Admin Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
 
-    <!-- Admin Nav Header -->
-    <nav class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center">
-        <h1 class="text-xl font-bold text-white">Admin Dashboard - Add Event</h1>
-        <a href="{{ url_for('admin_bp.dashboard') }}" class="px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg transition font-medium">
-            Back to Dashboard
+    <!-- Admin Header -->
+    <nav class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center shadow-md">
+        <h1 class="text-lg font-bold text-white">Admin Dashboard — Add Event</h1>
+        <a href="{{ url_for('admin_bp.dashboard') }}" class="px-3.5 py-1.5 text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl transition font-medium">
+            &larr; Back to Dashboard
         </a>
     </nav>
 
-    <main class="flex-1 max-w-xl w-full mx-auto px-4 py-10">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-xl">
-            <h2 class="text-2xl font-bold text-white mb-6">Create New Competition Event</h2>
+    <main class="flex-1 max-w-xl w-full mx-auto px-4 py-12">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
+            <h2 class="text-2xl font-black text-white mb-2">Create New Competition</h2>
+            <p class="text-xs text-slate-400 mb-6">Fill in the event details below to record it in the championship database.</p>
 
             <form method="POST" action="" class="space-y-5">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
                 <!-- Event Name -->
                 <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Event Name</label>
-                    <input type="text" name="name" required placeholder="e.g., Inter-House Quiz / Football Match"
-                           class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Event Name</label>
+                    <input type="text" name="name" required placeholder="e.g., Senior Football Final, Inter-House Quiz"
+                           class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 transition">
                 </div>
 
-                <!-- Category with Select Options & Manual Entry -->
+                <!-- Category with Dropdown + Manual Entry -->
                 <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Category (Select or type manual entry)</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Category (Select or Type Custom)</label>
                     <input type="text" name="category" list="category-options" required placeholder="Select or type category..."
-                           class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
+                           class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 transition">
                     <datalist id="category-options">
                         <option value="Sports">
                         <option value="Academics">
                         <option value="Cultural">
                     </datalist>
-                    <p class="text-xs text-slate-400 mt-1">Choose from Sports, Academics, Cultural, or type your own custom category.</p>
+                    <p class="text-[11px] text-slate-500 mt-1">Choose Sports, Academics, Cultural, or type your own custom category.</p>
                 </div>
 
                 <!-- Event Date -->
                 <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Event Date</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Event Date</label>
                     <input type="date" name="date" required
-                           class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
+                           class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
                 </div>
 
                 <!-- Max Points with Stepper (+5 / -5) -->
                 <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Max Points (5-point Stepper)</label>
-                    <div class="flex items-center gap-2">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Max Points (5-point Stepper)</label>
+                    <div class="flex items-center gap-3">
                         <button type="button" onclick="adjustPoints(-5)" 
-                                class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-4 py-2.5 rounded-lg border border-slate-600 text-lg transition">
+                                class="bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-white font-black px-4 py-3 rounded-xl border border-slate-700 text-lg transition">
                             -5
                         </button>
                         <input type="number" id="max_points" name="max_points" value="50" min="5" step="5" required
-                               class="w-full text-center bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-lg font-bold focus:outline-none focus:border-blue-500">
+                               class="w-full text-center bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-lg font-black focus:outline-none focus:border-blue-500 transition">
                         <button type="button" onclick="adjustPoints(5)" 
-                                class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-4 py-2.5 rounded-lg border border-slate-600 text-lg transition">
+                                class="bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-white font-black px-4 py-3 rounded-xl border border-slate-700 text-lg transition">
                             +5
                         </button>
                     </div>
@@ -70,12 +71,12 @@
                 <!-- Form Actions -->
                 <div class="pt-4 flex gap-3">
                     <a href="{{ url_for('admin_bp.dashboard') }}" 
-                       class="w-1/2 text-center bg-slate-700 hover:bg-slate-600 text-slate-200 py-2.5 rounded-lg font-medium transition">
+                       class="w-1/2 text-center bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-semibold transition">
                         Cancel
                     </a>
                     <button type="submit" 
-                            class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-lg font-medium transition">
-                        Add Event
+                            class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-semibold shadow-lg shadow-blue-600/30 transition">
+                        Save & Add Event
                     </button>
                 </div>
             </form>
