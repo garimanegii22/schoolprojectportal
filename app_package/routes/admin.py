@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user, login_user, logout_user
 from app_package.models import Admin, House, Competition, ParticipantRegistration, Result
 from app_package import db
+from datetime import datetime
 
 admin_bp = Blueprint('admin_bp', __name__)
 
@@ -9,7 +10,7 @@ admin_bp = Blueprint('admin_bp', __name__)
 def login():
     if request.method == 'POST':
         username = request.form.get('username')
-        password = request.form.get('admin_pass')  # Matches custom login input to bypass browser warnings
+        password = request.form.get('admin_pass')
         admin = Admin.query.filter_by(username=username).first()
         if admin and admin.check_password(password):
             login_user(admin)
@@ -36,7 +37,39 @@ def dashboard():
 @login_required
 def students():
     participants = ParticipantRegistration.query.all()
-    return render_template('admin/students.html', participants=participants)
+    houses = House.query.all()
+    competitions = Competition.query.all()
+    return render_template('admin/students.html', participants=participants, houses=houses, competitions=competitions)
+
+@admin_bp.route('/register-student', methods=['GET', 'POST'])
+@login_required
+def register_student():
+    if request.method == 'POST':
+        student_name = request.form.get('student_name')
+        house_id = request.form.get('house_id', type=int)
+        competition_id = request.form.get('competition_id', type=int)
+
+        if not student_name or not house_id or not competition_id:
+            flash('All fields are required for student registration.', 'danger')
+            return redirect(url_for('admin_bp.register_student'))
+
+        try:
+            new_reg = ParticipantRegistration(
+                student_name=student_name.strip(),
+                house_id=house_id,
+                competition_id=competition_id
+            )
+            db.session.add(new_reg)
+            db.session.commit()
+            flash(f'Student "{student_name}" successfully registered!', 'success')
+            return redirect(url_for('admin_bp.students'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error registering student: {str(e)}', 'danger')
+
+    houses = House.query.all()
+    competitions = Competition.query.all()
+    return render_template('admin/register_student.html', houses=houses, competitions=competitions)
 
 @admin_bp.route('/add-event', methods=['GET', 'POST'])
 @login_required
@@ -44,18 +77,21 @@ def add_event():
     if request.method == 'POST':
         name = request.form.get('name')
         category = request.form.get('category')
-        event_date = request.form.get('date')  # Fixed: Captures event date to satisfy database NOT NULL constraint
+        date_str = request.form.get('date')
         max_points = request.form.get('max_points', type=int)
         
-        if not name or not category or not event_date or not max_points:
+        if not name or not category or not date_str or not max_points:
             flash('All fields including date are required.', 'danger')
             return redirect(url_for('admin_bp.add_event'))
             
         try:
+            # Convert string date into a Python date object to satisfy SQLite Date type
+            parsed_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+
             new_competition = Competition(
                 name=name.strip(),
                 category=category.strip(),
-                event_date=event_date,
+                event_date=parsed_date,
                 max_points=max_points
             )
             db.session.add(new_competition)
