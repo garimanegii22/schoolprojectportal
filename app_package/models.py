@@ -47,7 +47,7 @@ class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     full_name = db.Column(db.String(100), nullable=False)
     roll_number = db.Column(db.String(50), unique=True, nullable=False)
-    class_section = db.Column(db.String(20), nullable=False)
+    class_section = db.Column(db.String(20), nullable=True, default='N/A')  # Optional to prevent registration blocks
     house_id = db.Column(db.Integer, db.ForeignKey('houses.id'), nullable=False)
 
     registrations = db.relationship('ParticipantRegistration', backref='student', lazy=True, cascade='all, delete-orphan')
@@ -79,7 +79,7 @@ class Result(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     competition_id = db.Column(db.Integer, db.ForeignKey('competitions.id'), nullable=False)
     house_id = db.Column(db.Integer, db.ForeignKey('houses.id'), nullable=False)
-    position = db.Column(db.String(10), nullable=False)  # 1st, 2nd, 3rd, 4th
+    position = db.Column(db.String(10), nullable=False)  # '1st', '2nd', '3rd', '4th'
     points_awarded = db.Column(db.Integer, nullable=False)
 
     __table_args__ = (

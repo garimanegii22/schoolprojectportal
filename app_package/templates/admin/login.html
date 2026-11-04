@@ -14,6 +14,12 @@
             <p class="text-xs text-slate-400 mt-1">Enter your administrator credentials</p>
         </div>
 
+        {% if error_message %}
+            <div class="mb-5 p-4 rounded-2xl text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/20 flex items-center gap-2">
+                <span>⚠️</span> <span>{{ error_message }}</span>
+            </div>
+        {% endif %}
+
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -32,8 +38,13 @@
                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
             </div>
             <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Password</label>
-                <input type="password" name="admin_pass" required autocomplete="new-password" placeholder="Enter password"
+                <div class="flex justify-between items-center mb-1.5">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300">Password</label>
+                    <button type="button" onclick="togglePasswordVisibility()" class="text-[11px] text-blue-400 hover:text-blue-300 font-semibold transition focus:outline-none">
+                        Show Password
+                    </button>
+                </div>
+                <input type="password" id="password_input" name="admin_pass" required autocomplete="new-password" placeholder="Enter password"
                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
             </div>
             <button type="submit" 
@@ -47,5 +58,19 @@
             </a>
         </div>
     </div>
+
+    <script>
+        function togglePasswordVisibility() {
+            const input = document.getElementById('password_input');
+            const btn = event.target;
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = 'Hide Password';
+            } else {
+                input.type = 'password';
+                btn.textContent = 'Show Password';
+            }
+        }
+    </script>
 </body>
 </html>

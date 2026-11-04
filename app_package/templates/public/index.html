@@ -61,7 +61,7 @@
 
     <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-10 space-y-10 relative z-10">
         
-        <!-- Dynamic Hero Header -->
+        <!-- Hero Header -->
         <div class="bg-gradient-to-br from-slate-900/90 via-slate-900/80 to-blue-950/40 border border-slate-800/80 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-sm relative overflow-hidden">
             <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
             
@@ -107,18 +107,21 @@
             <p class="text-xs text-slate-400 mb-6">Interactive percentage proportion of total points per house</p>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-                <!-- SVG Donut Chart -->
                 <div class="flex justify-center relative">
                     <svg class="w-48 h-48 transform -rotate-90" viewBox="0 0 36 36">
-                        {% set total = total_points_awarded if total_points_awarded > 0 else 1 %}
                         {% set ns = namespace(offset=0) %}
-                        {% set colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'] %}
                         
                         <path class="text-slate-950" stroke-width="4" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                         
                         {% for item in house_shares %}
                             {% set pct = item.percentage %}
-                            {% set color = colors[loop.index0 % colors|length] %}
+                            {% set i_name = item.name | lower %}
+                            {% if 'blue' in i_name %}{% set color = '#3b82f6' %}
+                            {% elif 'red' in i_name %}{% set color = '#ef4444' %}
+                            {% elif 'green' in i_name %}{% set color = '#10b981' %}
+                            {% elif 'yellow' in i_name %}{% set color = '#f59e0b' %}
+                            {% else %}{% set color = '#8b5cf6' %}{% endif %}
+                            
                             <path class="transition-all duration-700 hover:opacity-90" stroke-dasharray="{{ pct }} 100" stroke-dashoffset="-{{ ns.offset }}" stroke-width="4.5" stroke="{{ color }}" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                             {% set ns.offset = ns.offset + pct %}
                         {% endfor %}
@@ -129,7 +132,6 @@
                     </div>
                 </div>
 
-                <!-- Legend / Breakdown Grid -->
                 <div class="md:col-span-2 grid grid-cols-2 gap-4">
                     {% for item in house_shares %}
                         {% set i_name = item.name | lower %}
@@ -151,7 +153,7 @@
             </div>
         </div>
 
-        <!-- House Standings Section (Subtitle removed) -->
+        <!-- House Standings Section -->
         <div>
             <h3 class="text-2xl font-black text-white tracking-tight mb-6">House Standings</h3>
 

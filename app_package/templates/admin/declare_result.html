@@ -38,7 +38,7 @@
                     <select name="competition_id" id="competition_select" required onchange="updateAvailablePositions()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
                         <option value="" disabled selected>Select event...</option>
                         {% for comp in competitions %}
-                            <option value="{{ comp.id }}">{{ comp.name }} (Max: {{ comp.max_points }} pts)</option>
+                            <option value="{{ comp.id }}" {% if preselected_comp and comp.id == preselected_comp %}selected{% endif %}>{{ comp.name }} (Max: {{ comp.max_points }} pts)</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -54,7 +54,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Achieved Position (Remaining only)</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">Achieved Position</label>
                     <select name="position" id="position_select" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
                         <option value="" disabled selected>Select event first...</option>
                     </select>
@@ -98,13 +98,22 @@
                 }
             }
             
-            if (!firstAvailable) {
+            if (firstAvailable) {
+                posSelect.value = firstAvailable;
+            } else {
                 const opt = document.createElement('option');
                 opt.value = "";
                 opt.textContent = "All positions awarded for this event!";
                 posSelect.appendChild(opt);
             }
         }
+
+        window.onload = function() {
+            const compSelect = document.getElementById('competition_select');
+            if (compSelect.value) {
+                updateAvailablePositions();
+            }
+        };
     </script>
 </body>
 </html>
