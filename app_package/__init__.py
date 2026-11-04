@@ -28,16 +28,29 @@ def create_app():
 
     with app.app_context():
         db.create_all()
-        from app_package.models import Admin
-        # Ensure default admin user is seeded with 'houseportaladmin'
+        from app_package.models import Admin, House
+        
+        # 1. Ensure default admin user is seeded with 'houseportaladmin'
         admin = Admin.query.filter_by(username='admin').first()
         if not admin:
             admin = Admin(username='admin')
             admin.set_password('houseportaladmin')
             db.session.add(admin)
-            db.session.commit()
         else:
             admin.set_password('houseportaladmin')
-            db.session.commit()
+            
+        # 2. Ensure default houses are seeded so dropdowns are never empty
+        default_houses = [
+            {"name": "Blue", "emoji": "🔵", "display_color": "blue", "border_class": "border-blue-500", "glow_class": "glow-blue"},
+            {"name": "Red", "emoji": "🔴", "display_color": "red", "border_class": "border-red-500", "glow_class": "glow-red"},
+            {"name": "Green", "emoji": "🟢", "display_color": "green", "border_class": "border-emerald-500", "glow_class": "glow-green"},
+            {"name": "Yellow", "emoji": "🟡", "display_color": "yellow", "border_class": "border-amber-500", "glow_class": "glow-yellow"}
+        ]
+        for h_data in default_houses:
+            house = House.query.filter_by(name=h_data["name"]).first()
+            if not house:
+                db.session.add(House(**h_data))
+                
+        db.session.commit()
 
     return app
