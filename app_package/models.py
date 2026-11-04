@@ -47,7 +47,7 @@ class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     full_name = db.Column(db.String(100), nullable=False)
     roll_number = db.Column(db.String(50), unique=True, nullable=False)
-    class_section = db.Column(db.String(20), nullable=True, default='N/A')  # Optional to prevent registration blocks
+    class_section = db.Column(db.String(20), nullable=True, default='N/A')
     house_id = db.Column(db.Integer, db.ForeignKey('houses.id'), nullable=False)
 
     registrations = db.relationship('ParticipantRegistration', backref='student', lazy=True, cascade='all, delete-orphan')
