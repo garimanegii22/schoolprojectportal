@@ -54,8 +54,9 @@ def register_student():
             return redirect(url_for('admin_bp.register_student'))
 
         try:
+            # Fixed: Using 'name' to match ParticipantRegistration model column
             new_reg = ParticipantRegistration(
-                student_name=student_name.strip(),
+                name=student_name.strip(),
                 house_id=house_id,
                 competition_id=competition_id
             )
@@ -71,6 +72,43 @@ def register_student():
     competitions = Competition.query.all()
     return render_template('admin/register_student.html', houses=houses, competitions=competitions)
 
+@admin_bp.route('/declare-result', methods=['GET', 'POST'])
+@login_required
+def declare_result():
+    if request.method == 'POST':
+        competition_id = request.form.get('competition_id', type=int)
+        house_id = request.form.get('house_id', type=int)
+        points_awarded = request.form.get('points_awarded', type=int)
+
+        if not competition_id or not house_id or points_awarded is None:
+            flash('All fields are required to declare a result.', 'danger')
+            return redirect(url_for('admin_bp.declare_result'))
+
+        try:
+            # Record the result
+            new_result = Result(
+                competition_id=competition_id,
+                house_id=house_id,
+                points_awarded=points_awarded
+            )
+            db.session.add(new_result)
+
+            # Update house total points
+            house = House.query.get(house_id)
+            if house:
+                house.total_points = (house.total_points or 0) + points_awarded
+
+            db.session.commit()
+            flash(f'Successfully awarded {points_awarded} points to {house.name} House!', 'success')
+            return redirect(url_for('admin_bp.dashboard'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error declaring result: {str(e)}', 'danger')
+
+    competitions = Competition.query.all()
+    houses = House.query.all()
+    return render_template('admin/declare_result.html', competitions=competitions, houses=houses)
+
 @admin_bp.route('/add-event', methods=['GET', 'POST'])
 @login_required
 def add_event():
@@ -85,9 +123,7 @@ def add_event():
             return redirect(url_for('admin_bp.add_event'))
             
         try:
-            # Convert string date into a Python date object to satisfy SQLite Date type
             parsed_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-
             new_competition = Competition(
                 name=name.strip(),
                 category=category.strip(),
