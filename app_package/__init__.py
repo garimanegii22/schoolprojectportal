@@ -12,12 +12,13 @@ def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your_secure_secret_key_here')
     
-    # Check for cloud database URL (Render / Neon / Supabase), fallback to local SQLite for development
+    # Cloud database URL handling with explicit psycopg2 driver enforcement
     database_url = os.environ.get('DATABASE_URL')
     if database_url:
-        # SQLAlchemy 1.4+ compatibility fix for Render/Postgres URL prefix
         if database_url.startswith("postgres://"):
-            database_url = database_url.replace("postgres://", "postgresql://", 1)
+            database_url = database_url.replace("postgres://", "postgresql+psycopg2://", 1)
+        elif database_url.startswith("postgresql://") and "+" not in database_url.split("://")[0]:
+            database_url = database_url.replace("postgresql://", "postgresql+psycopg2://", 1)
         app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     else:
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///school_house_portal.db'
