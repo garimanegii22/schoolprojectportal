@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -9,8 +10,18 @@ csrf = CSRFProtect()
 
 def create_app():
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'your_secure_secret_key_here'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///school_house_portal.db'
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your_secure_secret_key_here')
+    
+    # Check for cloud database URL (Render / Neon / Supabase), fallback to local SQLite for development
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url:
+        # SQLAlchemy 1.4+ compatibility fix for Render/Postgres URL prefix
+        if database_url.startswith("postgres://"):
+            database_url = database_url.replace("postgres://", "postgresql://", 1)
+        app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    else:
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///school_house_portal.db'
+        
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
@@ -30,7 +41,7 @@ def create_app():
         db.create_all()
         from app_package.models import Admin, House
         
-        # 1. Ensure default admin user is seeded with 'houseportaladmin'
+        # Ensure default admin user is seeded with 'houseportaladmin'
         admin = Admin.query.filter_by(username='admin').first()
         if not admin:
             admin = Admin(username='admin')
@@ -39,7 +50,7 @@ def create_app():
         else:
             admin.set_password('houseportaladmin')
             
-        # 2. Ensure default houses are seeded so dropdowns are never empty
+        # Ensure default houses are seeded so dropdowns are never empty
         default_houses = [
             {"name": "Blue", "emoji": "🔵", "display_color": "blue", "border_class": "border-blue-500", "glow_class": "glow-blue"},
             {"name": "Red", "emoji": "🔴", "display_color": "red", "border_class": "border-red-500", "glow_class": "glow-red"},
